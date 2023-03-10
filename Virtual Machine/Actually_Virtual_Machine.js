@@ -1,5 +1,5 @@
 /*
-Пример запуска программы 
+Пример запуска программы  (text for test commit, sorry)
   1               2                 3
 node Actually_Virtual_Machine.js nod.sasm
 1) говорим терминалу что запускать надо через nodejs
