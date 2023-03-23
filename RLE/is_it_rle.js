@@ -52,8 +52,8 @@ else if (mode === 'decode')
         while (inputText.charAt(i) === '#')
         {
             i++;
-            while (/\d/.test(inputText.charAt(i)))
-            {
+            while (/\d/.test(inputText.charAt(i))) // /\d/ - это регулярное выражение, которое соответствует любой цифре 
+            { //.test проверяет выполняется ли регулярное выражение
             lengthStr += inputText.charAt(i);
             i++;
             }
