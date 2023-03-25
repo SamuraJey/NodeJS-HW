@@ -1,3 +1,5 @@
+/*
+ВСЕ ХЕРНЯ, норм ЭРЭЛЙЕ В файле GOOD_RLE.js
 const fs = require('fs');
 
 const [mode, inputFilename, outputFilename] = process.argv.slice(2);
@@ -54,12 +56,13 @@ else if (mode === 'decode')
             i++;
             while (/\d/.test(inputText.charAt(i))) // /\d/ - это регулярное выражение, которое соответствует любой цифре 
             { //.test проверяет выполняется ли регулярное выражение
-            lengthStr += inputText.charAt(i);
+            lengthStr += inputText.charAt(i); // считаем кол-во символов для декодирования в виде строки
+            //console.log(inputText.charAt(i));
             i++;
             }
         }
-      const length = parseInt(lengthStr || '1', 10);
-      outputText += inputText.charAt(i).repeat(length);
+      const length = parseInt(lengthStr || '1', 10); // переводим длину строки из строкового вида в числовой
+      outputText += inputText.charAt(i).repeat(length); // добавляем в декодирование столько символов, сколько их должно быть
       i++;
     }
     
@@ -70,3 +73,5 @@ else
 {
     console.log('Ошибка при вводе данных'); // Если режим работы не указан корректно, выводим сообщение об ошибке
 }
+
+*/
