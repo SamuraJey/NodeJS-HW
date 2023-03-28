@@ -1,7 +1,7 @@
 const fs = require("fs");
 const arg = process.argv;
 const [mode] = process.argv.slice(2);
-
+//ВСЕ ЧТО ЗАКОМЕНТИРОВАНО НЕ НУЖНО)) ПОТОМ УДАЛЮ И ЭТОТ КОММЕНТ ТОЖЕ
 
 if (mode.toLowerCase() == "code") 
 {
@@ -41,13 +41,6 @@ if (mode.toLowerCase() == "code")
         return fs[c] ? (fs[c] = fs[c] + 1, fs) : (fs[c] = 1, fs);
       }, {});
     }
-
-    /*
-    const freqs = text =>
-    { // Считаем частоту каждого символа
-      return [...text].reduce((fs, c) => fs[c] ? (fs[c] = fs[c] + 1, fs) : (fs[c] = 1, fs), {})
-    }
-    */
 
     function topairs(freqs)
     {
@@ -155,57 +148,9 @@ if (mode.toLowerCase() == "code")
     for (const i of splitAndConvert(compressed2)) 
   {
     //console.log(i.charCodeAt(0).toString(2));
-
-    fs.appendFileSync(fileOutput, i.charCodeAt(0).toString(2));
+    console.log(i);
+    fs.appendFileSync(fileOutput, i);
   }
-    /*
-    for (let i = 0; i < compressed2.length; i += 16) 
-    {
-      var compressed3 ='';
-      //console.log(compressed2.length - i);
-      //console.log(compressed2.length - i);
-      if (compressed2.length - i > 16) 
-      {
-        //console.log(i);
-        end += compressed2.slice(i, i + 16); // в енд записывается разбиение по 16 бит
-        //compressed3 += String.fromCharCode(parseInt(end.slice(i, i + 16), 2));
-        //compressed3 += String.fromCharCode(parseInt(end.slice(i, i + 16), 2) + 500);
-
-        //console.log(parseInt(end.slice(i, i + 16), 2) + 255);
-        //console.log(String.fromCharCode(parseInt(end.slice(i, i + 16), 2) + 500));
-        //console.log(compressed2);
-        //fs.appendFileSync("jopa.txt", compressed3);
-       // console.log(end);
-
-      }
-      else
-      {
-        //console.log(i);
-        //console.log(compressed2.length);
-        //console.log("jopa");
-        end += compressed2.slice(i, compressed2.length)
-        //console.log(end);
-        end += treeCodes["╬"].repeat(16 - (compressed2.length - i))
-        //end += "2".repeat(16 - (compressed2.length - i))
-        //console.log(end);
-      }
-      //console.log("end: ", end);
-      //console.log(end.slice(i, i + 16));
-      compressed3 += compressed3 + String.fromCharCode(parseInt(end.slice(i, i + 16), 2) + 500);
-      console.log("compressed3: ", compressed3);
-      fs.appendFileSync("jopa.txt", compressed3);
-    }
-    //console.log(compressed3);
-    console.log((compressed3.codePointAt(0)-500).toString(2));
-    console.log("cmp2: ",compressed2);
-    var her = fs.readFileSync("jopa.txt", "utf-8")
-    for (let j of her) 
-    {
-      console.log();
-      console.log((j.codePointAt(0)-500).toString(2));
-      
-    }
-*/
     
     // json файл для декодировки
     fs.writeFileSync(fileHelp, JSON.stringify(swapKeyWithValue(treeCodes)));
@@ -215,7 +160,93 @@ else if (mode.toLowerCase() == "decode")
     const [, , mode, fileInput, fileHelp, fileOutput] = process.argv;
     let textInput = fs.readFileSync(fileInput, "utf-8");
     let treeCodes = JSON.parse(fs.readFileSync(fileHelp, "utf-8"));
+    let binInput = "";
+
+/*
+  function decodeHuffman(binaryString, tree)
+  {
+    let decodedBits = "";
+    let i = 0;
+    console.log(tree);
+    while (i < binaryString.length) {
+      var node = tree;
+      while (typeof node === "object") 
+      {
+        if (binaryString[i] === "0") 
+        {
+          node = node.left;
+        } 
+        else if (binaryString[i] === "1") 
+        {
+          node = node.right;
+        } else 
+        {
+          console.error("Error: invalid input");
+          return "";
+        }
+        i++;
+      }
+      decodedBits += node;
+      //console.log(node);
+    }
+  
+    let decodedChars = "";
+    for (let i = 0; i < decodedBits.length; i += 16) 
+    {
+      let charCode = parseInt(decodedBits.substr(i, 16), 2);
+      //console.log(decodedBits.substr(i, 16));
+      decodedChars += String.fromCharCode(charCode);
+    }
+    //console.log(decodedChars);
+    return decodedChars;
+  }
+  */
+ /*
+    function addLeadingZeros(str) 
+    {
+      while (str.length % 16 !== 0) {
+        str = '0' + str;
+      }
+      return str;
+    }
+*/
+    function decodeHaffman(encodedText, treeCodes) {
+      let decodedBits = "";
+      let decodedChars ="";
+      for (let i = 0; i < encodedText.length; i++) {
+        let bit = encodedText[i];
+        decodedBits += bit;
+        if (decodedBits in treeCodes) {
+          let char = treeCodes[decodedBits];
+          if (char === "╬") {
+            break;
+          }
+          decodedChars += char;
+          decodedBits = "";
+        }
+      }
+      return decodedChars;
+    }
     
+    for (let j = 0; j < textInput.length; j++) 
+    {
+      binInput += textInput.charCodeAt(j).toString(2).padStart(16, "0");
+      //console.log(binInput);
+    }
+    console.log(binInput);
+    let decodedString = decodeHaffman(binInput, treeCodes);
+
+    console.log(decodedString);
+    fs.appendFileSync(fileOutput, decodedString);
+
+    /* херота
+    for (let j = 0; j < textInput.length; j++) 
+    {
+      binInput += textInput.charCodeAt(j).toString(2) 
+    }
+    textInput = addLeadingZeros(binInput);
+    */
+   /*
     let i = 0;
     let fullyDecoded = false; // флаг, который станет true, когда текст будет полностью расшифрован
     while (i < textInput.length && !fullyDecoded)
@@ -226,10 +257,10 @@ else if (mode.toLowerCase() == "decode")
             if (textInput.startsWith(code, i))
             {
               
-              if (treeCodes[code] == "╬") {
+              if (treeCodes[code] == "╬") 
+              {
                 console.log("her");
                 break
-                
               }
                 fs.appendFileSync(fileOutput, treeCodes[code]);
                 i += code.length;
@@ -242,7 +273,7 @@ else if (mode.toLowerCase() == "decode")
             //console.error("Error: failed to decode input text");
             break; // выходим из цикла while в случае, если символ не был найден
         }
-    }
+    }*/
 } 
 else if (mode.toLowerCase() == "test") 
 {
