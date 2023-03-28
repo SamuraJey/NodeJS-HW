@@ -3,14 +3,32 @@ const arg = process.argv;
 const [mode] = process.argv.slice(2);
 //ВСЕ ЧТО ЗАКОМЕНТИРОВАНО НЕ НУЖНО)) ПОТОМ УДАЛЮ И ЭТОТ КОММЕНТ ТОЖЕ
 
+if (process.argv.length !== 6) //проверяем что нам дали нужное кол-во аргументов
+{
+  console.error('Usage in code mode: \nnode app.js <mode> <inputfile.txt> <outputFile.txt> <outputTree.json>');
+  console.error();
+  console.error('Usage in decode mode: \nnode app.js <mode> <inputFile.txt> <inputTree.json> <outputFile.txt> ');
+  process.exit(1);
+}
+
+function FileExist(inpFile) 
+{
+    if ((fs.existsSync(inpFile))) // Проверяем, существует ли входной файл
+    return true;
+    else return false;
+}
+
 if (mode.toLowerCase() == "code") 
 {
-    fs.writeFileSync("jopa.txt", "");
     const [fileInput, fileOutput, fileHelp] = process.argv.slice(3);
     var compressed2 = "";
-    var end = "";
+    //var end = "";
 
-
+    if (!(FileExist(fileInput))) 
+    {
+        console.error(`Обнаружена ошибка. Файл ${fileInput} или не найден`)
+        process.exit(1); // Если файл не существует, выводим сообщение об ошибке и завершаем программу
+    }
 
     function splitAndConvert(str) {
       // Дополнить строку нулями до кратности 16
@@ -158,6 +176,11 @@ if (mode.toLowerCase() == "code")
 else if (mode.toLowerCase() == "decode")
 {
     const [, , mode, fileInput, fileHelp, fileOutput] = process.argv;
+    if (!(FileExist(fileInput)) || !(FileExist(fileHelp))) 
+    {
+        console.error(`Обнаружена ошибка. Файл ${fileInput} или ${fileHelp} не найден`)
+        process.exit(1); // Если файл не существует, выводим сообщение об ошибке и завершаем программу
+    }
     let textInput = fs.readFileSync(fileInput, "utf-8");
     let treeCodes = JSON.parse(fs.readFileSync(fileHelp, "utf-8"));
     let binInput = "";
@@ -234,10 +257,11 @@ else if (mode.toLowerCase() == "decode")
       //console.log(binInput);
     }
     console.log(binInput);
+    //binInput = "тут можно поломать что-то потом"
     let decodedString = decodeHaffman(binInput, treeCodes);
 
     console.log(decodedString);
-    fs.appendFileSync(fileOutput, decodedString);
+    fs.writeFileSync(fileOutput, decodedString);
 
     /* херота
     for (let j = 0; j < textInput.length; j++) 
