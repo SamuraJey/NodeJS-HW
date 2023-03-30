@@ -5,10 +5,10 @@ const [mode] = process.argv.slice(2);
 
 if (process.argv.length !== 6) //проверяем что нам дали нужное кол-во аргументов
 {
-  console.error('Usage in code mode: \nnode app.js <mode> <inputfile.txt> <outputFile.txt> <outputTree.json>');
-  console.error();
-  console.error('Usage in decode mode: \nnode app.js <mode> <inputFile.txt> <inputTree.json> <outputFile.txt> ');
-  process.exit(1);
+    console.error('Usage in code mode: \nnode app.js <mode> <inputfile.txt> <outputFile.txt> <outputTree.json>');
+    console.error();
+    console.error('Usage in decode mode: \nnode app.js <mode> <inputFile.txt> <inputTree.json> <outputFile.txt> ');
+    process.exit(1);
 }
 
 function FileExist(inpFile) 
@@ -30,23 +30,21 @@ if (mode.toLowerCase() == "code")
         process.exit(1); // Если файл не существует, выводим сообщение об ошибке и завершаем программу
     }
 
-    function splitAndConvert(str) {
-      // Дополнить строку нулями до кратности 16
-      while (str.length % 16 !== 0) 
-      {
-        str += 0;
-      }
+    function splitAndConvert(str)
+    {
+        // Дополнить строку нулями до кратности 16
+        while (str.length % 16 !== 0) 
+        {
+            str += 0;
+        }
     
       // Разбить строку на части по 16 символов
       const chunks = str.match(/.{1,16}/g);
     
       // Преобразовать каждую часть в десятичное число и потом в строку символов UTF-16
-      const utf16Strings = chunks.map(chunk => 
-        {
+    const utf16Strings = chunks.map(chunk => {
         const decimal = parseInt(chunk, 2);
-        return String.fromCharCode(decimal);
-      });
-    
+        return String.fromCharCode(decimal);});
       // Склеить все строки символов UTF-16 в одну строку и вернуть её
       return utf16Strings.join('');
     }
@@ -176,64 +174,19 @@ if (mode.toLowerCase() == "code")
 else if (mode.toLowerCase() == "decode")
 {
     const [, , mode, fileInput, fileHelp, fileOutput] = process.argv;
+    
     if (!(FileExist(fileInput)) || !(FileExist(fileHelp))) 
     {
         console.error(`Обнаружена ошибка. Файл ${fileInput} или ${fileHelp} не найден`)
         process.exit(1); // Если файл не существует, выводим сообщение об ошибке и завершаем программу
     }
+
     let textInput = fs.readFileSync(fileInput, "utf-8");
     let treeCodes = JSON.parse(fs.readFileSync(fileHelp, "utf-8"));
     let binInput = "";
 
-/*
-  function decodeHuffman(binaryString, tree)
-  {
-    let decodedBits = "";
-    let i = 0;
-    console.log(tree);
-    while (i < binaryString.length) {
-      var node = tree;
-      while (typeof node === "object") 
-      {
-        if (binaryString[i] === "0") 
-        {
-          node = node.left;
-        } 
-        else if (binaryString[i] === "1") 
-        {
-          node = node.right;
-        } else 
-        {
-          console.error("Error: invalid input");
-          return "";
-        }
-        i++;
-      }
-      decodedBits += node;
-      //console.log(node);
-    }
-  
-    let decodedChars = "";
-    for (let i = 0; i < decodedBits.length; i += 16) 
+    function decodeHaffman(encodedText, treeCodes)
     {
-      let charCode = parseInt(decodedBits.substr(i, 16), 2);
-      //console.log(decodedBits.substr(i, 16));
-      decodedChars += String.fromCharCode(charCode);
-    }
-    //console.log(decodedChars);
-    return decodedChars;
-  }
-  */
- /*
-    function addLeadingZeros(str) 
-    {
-      while (str.length % 16 !== 0) {
-        str = '0' + str;
-      }
-      return str;
-    }
-*/
-    function decodeHaffman(encodedText, treeCodes) {
       let decodedBits = "";
       let decodedChars ="";
       for (let i = 0; i < encodedText.length; i++) {
@@ -250,11 +203,11 @@ else if (mode.toLowerCase() == "decode")
       }
       return decodedChars;
     }
-    
+
     for (let j = 0; j < textInput.length; j++) 
     {
       binInput += textInput.charCodeAt(j).toString(2).padStart(16, "0");
-      //console.log(binInput);
+      
     }
     console.log(binInput);
     //binInput = "тут можно поломать что-то потом"
