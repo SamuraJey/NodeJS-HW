@@ -1,9 +1,26 @@
+const { log } = require("console");
 const fs = require("fs");
 const arg = process.argv;
 const [mode] = process.argv.slice(2);
-//ВСЕ ЧТО ЗАКОМЕНТИРОВАНО НЕ НУЖНО)) ПОТОМ УДАЛЮ И ЭТОТ КОММЕНТ ТОЖЕ
 
-if (process.argv.length !== 6) //проверяем что нам дали нужное кол-во аргументов
+if (mode.toLowerCase() == "help") 
+{
+    console.log("This is a program that performs encoding and decoding of text files using Huffman coding algorithm. It stores output values in unicode symbols");
+    console.log("Usage:");
+    console.log("For encoding:");
+    console.log("node app.js code <inputfile.txt> <outputFile.txt> <outputTree.json>");
+    console.log("For decoding:");
+    console.log("node app.js decode <inputFile.txt> <inputTree.json> <outputFile.txt>");
+    console.log();
+    console.log("Note: The symbol '╬' is reserved and cannot be used in the input text file, as it is used as an end-of-file marker.");
+    console.log("Example usage for encoding: node app.js code input.txt output.txt tree.json");
+    console.log("Example usage for decoding: node app.js decode output.txt tree.json output_decoded.txt");
+    console.log();
+    process.exit(0);
+}
+
+
+if (process.argv.length !== 7) //проверяем что нам дали нужное кол-во аргументов
 {
     console.error('Usage in code mode: \nnode app.js <mode> <inputfile.txt> <outputFile.txt> <outputTree.json>');
     console.error();
@@ -20,7 +37,7 @@ function FileExist(inpFile) // Проверяем, существует ли в�
 
 if (mode.toLowerCase() == "code") 
 {
-    const [fileInput, fileOutput, fileHelp] = process.argv.slice(3);
+    const [fileInput, fileOutput, fileHelp, fileFreq] = process.argv.slice(3);
     var compressed2 = "";
     //var end = "";
 
@@ -49,37 +66,18 @@ if (mode.toLowerCase() == "code")
       return utf16Strings.join('');
     }
 
-    /*
-    function freqs(text)
-    {
-      // Считаем частоту каждого символа
-      return [...text].reduce(function (fs, c)
-      {
-        return fs[c] ? (fs[c] = fs[c] + 1, fs) : (fs[c] = 1, fs);
-      }, {});
-    }
-    */
     function freqs(text) 
     {
         const freq = {};
         for (const c of text)
         {
-          freq[c] = (freq[c] || 0) + 1;
+          freq[c] = ((freq[c] || 0) + 1) / text.length;
         }
+
         return freq;
       }
       
-/*
-    function topairs(freqs)
-    {
-      var pairs = Object.keys(freqs).map(
-      function(c)
-      {
-        return [c, freqs[c]];
-      });
-      return pairs;
-    }
-*/
+
     function topairs(freqs)
     {
         var pairs = [];
@@ -93,7 +91,6 @@ if (mode.toLowerCase() == "code")
     
     function sortPairs(pairs)
     {
-        //console.log(pairs);
       return pairs.sort(
         function(a, b)
         {
@@ -106,7 +103,6 @@ if (mode.toLowerCase() == "code")
         if (ps.length < 2) 
         {
             return ps[0];
-            
         } 
         else
         {
@@ -125,10 +121,13 @@ if (mode.toLowerCase() == "code")
             {
                 const leftTree = tree[0][0];
                 const rightTree = tree[0][1];
+                //console.log(leftTree[0]);
+                //console.log();
+                //console.log(rightTree);
                 const leftCodes = codes(leftTree, pfx + "0");
                 const rightCodes = codes(rightTree, pfx + "1");
                 Object.assign(codeObj, leftCodes, rightCodes);
-            } 
+            }
             else
             {
                 const symbol = tree[0];
@@ -140,18 +139,38 @@ if (mode.toLowerCase() == "code")
     function getCodes(text)
     {
         const frequencies = freqs(text);
+        //console.log(frequencies);
         const pairs = topairs(frequencies);
         const sortedPairs = sortPairs(pairs);
         const codingTree = tree(sortedPairs);
+        //console.log(codingTree);
+        //printTree(codingTree);
         const codess = codes(codingTree);
         //console.log(codess);
         return codess;
     }
     
     let textInput = fs.readFileSync(fileInput, "utf-8");
+    textInput += "╬";
+    //console.log(textInput);
     let treeCodes = {};
-  
+
+    function printHuffman(tree, prefix = '') {
+        if (tree[0] instanceof Array) {
+          console.log(prefix + '├─┬');
+          printHuffman(tree[0][0], prefix + '│ ');
+          printHuffman(tree[0][1], prefix + '│ ');
+        } else {
+          console.log(prefix + '├─╴' + tree[0]);
+        }
+      }
+      
+    const treee = [[[["a", 0.25], [["b", 0.125], ["c", 0.125]], 0.25], [["d", 0.5], 0.5]], 1];
+    //console.log(treee);
+    //printHuffman(treee);
+
     treeCodes = getCodes(textInput);
+    fs.writeFileSync(fileFreq, "");
     fs.writeFileSync(fileOutput, "");
     
     for (i of textInput)
@@ -181,6 +200,11 @@ if (mode.toLowerCase() == "code")
     }
     // json файл для декодировки
     fs.writeFileSync(fileHelp, JSON.stringify(swapKeyWithValue(treeCodes)));
+    fs.writeFileSync(fileFreq, JSON.stringify(freqs(textInput)));
+
+
+    
+      
 } 
 else if (mode.toLowerCase() == "decode")
 {
@@ -263,4 +287,17 @@ a равно ['c', 5] а b равно ['d', 3],
 которую нельзя переназначить внутри цикла. Таким образом, в каждой итерации 
 значение i будет меняться на следующий элемент массива compressed2,
 но сама переменная не может быть изменена внутри цикла.
+
+В этом коде дерево Хаффмана строится,
+с использованием частоты символов в тексте для построения дерева. 
+Сначала вы создаете массив пар символов и их частот, затем сортируете этот массив по частотам.
+Затем используеся рекурси для создания дерева Хаффмана, начиная с самых редких символов,
+они объединяются их в новый узел с суммарной частотой.
+Этот узел затем добавляется в массив, и процесс повторяется для следующих двух символов
+с наименьшей частотой. 
+Дерево Хаффмана создается до тех пор, пока не будет достигнут корень дерева,
+который будет содержать все символы текста.
+
+После построения дерева Хаффмана вы создаете таблицу кодов для каждого символа, проходя через дерево и назначая "0" для левой ветви и "1" для правой ветви. Эта таблица кодов затем используется для кодирования текста в бинарную строку, используя коды для каждого символа.
+
 */
