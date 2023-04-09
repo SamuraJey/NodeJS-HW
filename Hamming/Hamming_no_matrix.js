@@ -163,6 +163,8 @@ function correctSmh(stroka)
     let y6 = stroka[5];
     let y7 = stroka[6];
     let y8 = stroka[7];
+    let result = {};
+    let res_stroka = "";
 
     let s0 = (parseInt(y1) + parseInt(y2) + parseInt(y3) + parseInt(y4) + parseInt(y5) + parseInt(y6) + parseInt(y7) + parseInt(y8)) % 2;
     //let s0 = (stroka[0] + stroka [1] + stroka[2] + stroka [3] + stroka[4] + stroka [5] + stroka[6] + stroka[7]) % 2;
@@ -170,54 +172,85 @@ function correctSmh(stroka)
     //console.log(`s0 ${s0}`);
     if (s0 == "0" && findSyndrome(stroka) == "000")
     {
+        result = 
+            {
+                errorBitNum: null,
+                notCorrectedCode: stroka,
+                correctedCode: stroka,
+                decoded: stroka.substr(0, 4)
+            };
+            return result;
+        /*
         console.log("No error");
         console.log(`Not corrected hamming code ${stroka}`);
         console.log(`Corrected hamming code ${stroka}`);
         return stroka;
+        */
     }
     else if (s0 == "1")
     {
-        
-        //syndrome = findSyndrome(stroka);
-        //console.log(syndromeErrorPosMap[syndrome]);
         var errorPos = syndromeErrorPosMap[findSyndrome(stroka)] - 1;
-        //console.log(findSyndrome(stroka));
         if (errorPos == -1)
         {
-
-            
-            const result = 
+            res_stroka = stroka.substr(0, 7) + (stroka[7] ^ 1).toString() + stroka.substr(7 + 1);
+            result = 
             {
                 errorBitNum: 8,
                 notCorrectedCode: stroka,
-                correctedCode: stroka.substr(0, 7) + (stroka[7] ^ 1).toString() + stroka.substr(7 + 1),
-                decoded: stroka.substr(0, 4)
+                correctedCode: res_stroka,
+                decoded: res_stroka.substr(0, 4)
             };
 
-            
+            /*
             console.log(`Error in eighth bit y8`);
             console.log(`not corrected Hamming code: ${stroka}`);
             stroka = stroka.substr(0, 7) + (stroka[7] ^ 1).toString() + stroka.substr(7 + 1);
             console.log(`Corrected Hamming code: ${stroka}`);
+            */
             return result;
         }
+
+        
+        res_stroka = stroka.substr(0, errorPos) + (stroka[errorPos] ^ 1).toString() + stroka.substr(errorPos + 1);
+        result =
+        {
+            errorBitNum: errorPos + 1,
+            notCorrectedCode: stroka,
+            correctedCode: res_stroka,
+            decoded: res_stroka.substr(0, 4)
+        };
+        stroka = res_stroka;
+        /*
         console.log(`Error in ${errorPos + 1} bit`);
         console.log(`not corrected Hamming code: ${stroka}`);
         stroka = stroka.substr(0, errorPos) + (stroka[errorPos] ^ 1).toString() + stroka.substr(errorPos + 1);
         console.log(`Corrected Hamming code: ${stroka}`);
+        */
         let s00 = (parseInt(stroka[0]) + parseInt(stroka[1]) + parseInt(stroka[2]) + parseInt(stroka[3]) + parseInt(stroka[4]) + parseInt(stroka[5]) + parseInt(stroka[6])) % 2;
         //console.log(`storka[0] ${stroka[0]} storka[1] ${stroka[1]} storka[2] ${stroka[2]} storka[3] ${stroka[3]} storka[4] ${stroka[4]} storka[5] ${stroka[5]} storka[6] ${stroka[6]} storka[7] ${stroka[7]}`);
         //console.log(`s00 ${s00}`);
         if (s00 != stroka[7])
         {
+            res_stroka = stroka.substr(0, 7) + (stroka[7] ^ 1).toString() + stroka.substr(7 + 1);
+
+            result =
+            {
+                errorBitNum: 8,
+                notCorrectedCode: stroka,
+                correctedCode: res_stroka,
+                decoded: res_stroka.substr(0, 4)
+            };
+            /*
             console.log(`Error in eighth bit y8`);
             console.log(`not corrected Hamming code: ${stroka}`);
             stroka = stroka.substr(0, 7) + (stroka[7] ^ 1).toString() + stroka.substr(7 + 1);
             console.log(`Corrected Hamming code: ${stroka}`);
             console.log("VIPOLNYAETSYA");
             return stroka;
+            */
+           return result;
         }
-        return stroka;
+        return result;
     }
     else
     {
@@ -251,12 +284,12 @@ function flipRandomChar(str)
 let arr = ["00000000", "10001011", "01001110", "11000101", "00101101", "10100110", "01100011", "11101000", "00010111", "10011100", "01011001", "11010010", "00111010", "10110001", "01110100", "11111111"];
 for (let i = 0; i < 16; i++)
 {
-    /*
-    console.log(correctSmh(arr[i]));
-    console.log();
-    */
+    
+    //console.log(correctSmh(arr[i]));
+    //console.log();
+    
     console.log(correctSmh(flipRandomChar(arr[i])));
-    console.log();
+    
 }
 
 function test() 
