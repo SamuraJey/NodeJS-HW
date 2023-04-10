@@ -1,7 +1,7 @@
 //кажется ну почти готово, осталось только сделать что бы оно работало с дополнительным битом четности
 
 const [mode, inputText1, inputText2] = process.argv.slice(2);
-//console.log(`mode ${mode} inputText1 ${inputText1} inputText2 ${inputText2}`);
+
 
 const syndromeErrorPosMap = 
 {
@@ -27,114 +27,8 @@ function encodeHamming(msg)
     const y6 = msg[1] ^ msg[2] ^ msg[3];
     const y7 = msg[0] ^ msg[1] ^ msg[3];
     const y8 = (parseInt(y1) + parseInt(y2) + parseInt(y3) + parseInt(y4) + parseInt(y5) + parseInt(y6) + parseInt(y7)) % 2;
-    //const y8 = (y1 + y2 + y3 + y4 + y5 + y6 + y7) % 2;
-    //console.log(`y1 ${y1} y2 ${y2} y3 ${y3} y4 ${y4} y5 ${y5} y6 ${y6} y7 ${y7}`);
-    //console.log(`y8 ${y8}`);
-
     return y1 + y2 + y3 + y4 + y5 + y6 + y7 + y8;
 }
-
-/*
-function decodeHamming(msg)
-{
-    const y1 = msg[0];
-    const y2 = msg[1];
-    const y3 = msg[2];
-    const y4 = msg[3];
-    const y5 = msg[4];
-    const y6 = msg[5];
-    const y7 = msg[6];
-    const y8 = msg[7];
-
-    const s1 = y1 ^ y2 ^ y3 ^ y5;
-    const s2 = y2 ^ y3 ^ y4 ^ y6;
-    const s3 = y1 ^ y2 ^ y4 ^ y7;
-    const s4 = (parseInt(y1) + parseInt(y2) + parseInt(y3) + parseInt(y4) + parseInt(y5) + parseInt(y6) + parseInt(y7) + parseInt(y8)) % 2;
-    //const s4 = y1 ^ y2 ^ y3 ^ y4 ^ y5 ^ y6 ^ y7;
-    const s = s4.toString() + s1.toString() + s2.toString() + s3.toString();
-    syndrome = s1.toString() + s2.toString() + s3.toString();
-    console.log("y1 " + y1 + " y2 " + y2 + " y3 " + y3 + " y4 " + y4 + " y5 " + y5 + " y6 " + y6 + " y7 " + y7 + " y8 " + y8);
-    console.log(`s4 ${s4}`);
-    if (s4 == 0)
-    {
-        //надо проверить синдром для 7 битного кода
-    }
-
-    switch(s.slice(1, 3))
-    {
-        case '000':
-            console.log(`no error`);
-            console.log(`s ${s}`);
-            let dcd = y1.toString() + y2.toString() + y3.toString() + y4.toString();
-            let corrected = y1 + y2 + y3 + y4 + y5 + y6 + y7;
-            return `Original message: ${dcd}\nCorrected Hamming code: ${corrected}`;
-
-        case '1101':
-            console.log(`error in first bit y1`);
-            console.log(`s ${s}`);
-            let dcd1 = (y1 ^ 1).toString() + y2.toString() + y3.toString() + y4.toString();
-            let corrected1 = (y1 ^ 1).toString() + y2.toString() + y3.toString() + y4.toString() + y5.toString() + y6.toString() + y7.toString();
-            //let dcd1 = y1 ^ 1 + y2 + y3 + y4;
-            //let corrected1 = y1 ^ 1 + y2 + y3 + y4 + y5 + y6 + y7;
-            return `Original message: ${dcd1}\nCorrected Hamming code: ${corrected1}`;
-
-        case "1111":
-            console.log(`error in second bit y2`);
-            console.log(`s ${s}`);
-            let dcd2 = y1.toString() + (y2 ^ 1).toString() + y3.toString() + y4.toString();
-            let corrected2 = y1.toString() + (y2 ^ 1).toString() + y3.toString() + y4.toString() + y5.toString() + y6.toString() + y7.toString();
-            //let dcd2 = y1 + y2 ^ 1 + y3 + y4;
-            //let corrected2 = y1 + y2 ^ 1 + y3 + y4 + y5 + y6 + y7;
-            return `Original message: ${dcd2}\nCorrected Hamming code: ${corrected2}`;
-
-        case "1110":
-            console.log(`error in third bit y3`);
-            console.log(`s ${s}`);
-            let dcd3 = y1.toString() + y2.toString() + (y3 ^ 1).toString() + y4.toString();
-            //let dcd3 = y1 + y2 + y3 ^ 1 + y4;
-            let corrected3 = y1.toString() + y2.toString() + (y3 ^ 1).toString() + y4.toString() + y5.toString() + y6.toString() + y7.toString();
-            //let corrected3 = y1 + y2 + y3 ^ 1 + y4 + y5 + y6 + y7;
-            return `Original message: ${dcd3}\nCorrected Hamming code: ${corrected3}`;
-
-        case "1011":
-            console.log(`error in fourth bit y4`);
-            console.log(`s ${s}`);
-            let dcd4 = y1.toString() + y2.toString() + y3.toString() + (y4 ^ 1).toString();
-            let corrected4 = y1.toString() + y2.toString() + y3.toString() + (y4 ^ 1).toString() + y5.toString() + y6.toString() + y7.toString();
-            //let dcd4 = y1 + y2 + y3 + y4 ^ 1;
-            //let corrected4 = y1 + y2 + y3 + y4 ^ 1 + y5 + y6 + y7;
-            return `Original message: ${dcd4}\nCorrected Hamming code: ${corrected4}`;
-
-        case "1100":
-            console.log(`error in fifth bit y5`);
-            console.log(`s ${s}`);
-            let dcd5 = y1.toString() + y2.toString() + y3.toString() + y4.toString();
-            let corrected5 = y1.toString() + y2.toString() + y3.toString() + y4.toString() + (y5 ^ 1).toString() + y6.toString() + y7.toString();
-            //let dcd5 = y1 + y2 + y3 + y4;
-            //let corrected5 = y1 + y2 + y3 + y4 + y5 ^ 1 + y6 + y7;
-            return `Original message: ${dcd5}\nCorrected Hamming code: ${corrected5}`;
-
-        case "1010":
-            console.log(`s ${s}`);
-            console.log(`error in sixth bit y6`);
-            let dcd6 = y1.toString() + y2.toString() + y3.toString() + y4.toString();
-            let corrected6 = y1.toString() + y2.toString() + y3.toString() + y4.toString() + y5.toString() + (y6 ^ 1).toString() + y7.toString();
-            //let dcd6 = y1 + y2 + y3 + y4;
-            //let corrected6 = y1 + y2 + y3 + y4 + y5 + y6 ^ 1 + y7;
-            return `Original message: ${dcd6}\nCorrected Hamming code: ${corrected6}`;
-
-        case "1001":
-            console.log(`s ${s}`);
-            console.log(`error in seventh bit y7`);
-            let dcd7 = y1.toString() + y2.toString() + y3.toString() + y4.toString();
-            let corrected7 = y1.toString() + y2.toString() + y3.toString() + y4.toString() + y5.toString() + y6.toString() + (y7 ^ 1).toString();
-            //let dcd7 = y1 + y2 + y3 + y4;
-            //let corrected7 = y1 + y2 + y3 + y4 + y5 + y6 + y7 ^ 1;
-            return `Original message: ${dcd7}\nCorrected Hamming code: ${corrected7}`;
-    }
-
-}
-*/
 
 function findSyndrome(inp) // счиатем синдром для 7-битного кода
 {
@@ -312,12 +206,11 @@ console.log(correctSmh('11000111')); // error in 7th bit
 console.log();
 console.log(correctSmh('11000100')); // error in 8th bit
 console.log();
-console.log(correctSmh('00000101')); // 2 errors in 1th and 2th bits
+console.log(correctSmh('00000101')); // 2 errors in 1th and 2th bits, should be 11000101
 console.log();
 console.log(correctSmh('00000000')); // no errors but zeroes
 }
 //test()
-return;
 
 if (mode !== "-e" && mode !== "-c")
 {
@@ -328,6 +221,13 @@ if (mode !== "-e" && mode !== "-c")
   
 if (mode === "-e")
 {
+    if (inputText1.length != 4)
+    {
+        errorMessage = `Wrong lenght given. Recived ${inputText1.length}, should be 4`;
+        throw new Error(errorMessage);
+    }
+    // todo do check that only 1 and 0 used
+
     console.log(`Encoding ${inputText1}`);
     console.log(`Hamming code: ${encodeHamming(inputText1)}`);
 }
