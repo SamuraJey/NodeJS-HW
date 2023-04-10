@@ -1,5 +1,6 @@
 const [mode, inputText1, inputText2] = process.argv.slice(2);
 
+
 const syndromeErrorPosMap = 
 {
     '000': 0,
@@ -24,7 +25,6 @@ function encodeHamming(msg)
     const y6 = msg[1] ^ msg[2] ^ msg[3];
     const y7 = msg[0] ^ msg[1] ^ msg[3];
     const y8 = (parseInt(y1) + parseInt(y2) + parseInt(y3) + parseInt(y4) + parseInt(y5) + parseInt(y6) + parseInt(y7)) % 2;
-
     return y1 + y2 + y3 + y4 + y5 + y6 + y7 + y8;
 }
 
@@ -146,7 +146,32 @@ for (let i = 0; i < 16; i++)
     
     console.log(correctSmh(flipRandomChar(arr[i])));
 }
-return;
+
+function test() 
+{
+console.log(correctSmh('11000101')); // no error
+console.log();
+console.log(correctSmh('01000101')); // error in 1th bit
+console.log();
+console.log(correctSmh('10000101')); // error in 2th bit
+console.log();
+console.log(correctSmh('11100101')); // error in 3th bit
+console.log();
+console.log(correctSmh('11010101')); // error in 4th bit
+console.log();
+console.log(correctSmh('11001101')); // error in 5th bit
+console.log();
+console.log(correctSmh('11000001')); // error in 6th bit
+console.log();
+console.log(correctSmh('11000111')); // error in 7th bit
+console.log();
+console.log(correctSmh('11000100')); // error in 8th bit
+console.log();
+console.log(correctSmh('00000101')); // 2 errors in 1th and 2th bits, should be 11000101
+console.log();
+console.log(correctSmh('00000000')); // no errors but zeroes
+}
+//test()
 
 if (mode !== "-e" && mode !== "-c")
 {
@@ -157,6 +182,13 @@ if (mode !== "-e" && mode !== "-c")
   
 if (mode === "-e")
 {
+    if (inputText1.length != 4)
+    {
+        errorMessage = `Wrong lenght given. Recived ${inputText1.length}, should be 4`;
+        throw new Error(errorMessage);
+    }
+    // todo do check that only 1 and 0 used
+
     console.log(`Encoding ${inputText1}`);
     console.log(`Hamming code: ${encodeHamming(inputText1)}`);
 }
