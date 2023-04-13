@@ -94,12 +94,15 @@ if (mode.toLowerCase() === 'code')
         console.error("Обнаружена ошибка, файл не найден")
         process.exit(1); // Если файл не существует, выводим сообщение об ошибке и завершаем программу
     }
+
     const inputText = fs.readFileSync(inputFilename, 'utf8'); // Считываем содержимое входного файла
     let outputText = '';
+
     outputText = codeRle(inputText);
     fs.writeFileSync(outputFilename, outputText, 'utf8'); // Записываем сжатые данные в выходной файл 
     const inputFileSize = fs.statSync(inputFilename).size;
     const outputFileSize = fs.statSync(outputFilename).size;
+
     console.log(`Файл сжат. Коэфицент сжатия: ${inputFileSize / outputFileSize}`); // Выводим соотношение размеров входного и выходного файлов
 }
 else if (mode.toLowerCase() === 'decode')
@@ -109,6 +112,7 @@ else if (mode.toLowerCase() === 'decode')
         console.error("Обнаружена ошибка, файл не найден")
         process.exit(1); // Если файл не существует, выводим сообщение об ошибке и завершаем программу
     }
+    
     const inputText = fs.readFileSync(inputFilename, 'utf8'); // Считываем содержимое входного файла
     let outputText = '';
     outputText = decodeRle(inputText);
