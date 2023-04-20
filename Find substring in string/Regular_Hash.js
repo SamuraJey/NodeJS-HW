@@ -1,5 +1,14 @@
-const { log } = require('console');
 const fs = require('fs');
+
+/*
+TODO list:
+1. Optimize findSubstring function
+2. Optimize rabinKarp function
+
+possible solutions:
+
+
+*/
 
 
 function bruteForce(str, substr) 
