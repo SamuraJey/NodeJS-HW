@@ -15,6 +15,10 @@ function bruteForce(str, substr)
         if (j === substr.length)
         {
             result.push(i);
+            if (result.length === 10)
+            {
+                break;
+            }
         }
     }
     if (result.length === 0)
@@ -26,7 +30,7 @@ function bruteForce(str, substr)
 
 function searchSubstring(string, substring)
 {
-    const M = 1000003; // простое число для взятия остатка по модулю
+    const M = 11047; // простое число для взятия остатка по модулю //11383 fine //11071 better // 11047 smallest working with warandpeace.txt
     let collisions = 0; // счетчик коллизий
     const substringHash = getHash(substring, M); // хеш-значение подстроки
     const result = []; // массив с результатами
@@ -77,17 +81,17 @@ function getHash(string, M)
     return hash;
 }
 
+
 // Rabin-Karp algorithm
 function rabinKarp(string, substring)
 {
-    const M = 1000003;
-    const n = string.length;
-    const m = substring.length;
+    let M = 1000003; // простое число для взятия остатка по модулю
+    //const n = string.length;
+    //const m = substring.length;
     let collisions = 0; // счетчик коллизий
     let substringHash = getHashRK(substring, M);
-    let currentHash = getHashRK(string.slice(0, m), M);
+    let currentHash = getHashRK(string.slice(0, substring.length), M);
     let currentSubstring = string.slice(0, substring.length);
-    console.log("currentSubstring: ", currentSubstring);
     let result = [];
 
     for (let i = 0; i <= string.length - substring.length; i++)
@@ -110,8 +114,13 @@ function rabinKarp(string, substring)
             }
         }
         // оптимизация двигающегося окна
-            currentHash = ((currentHash - (2 ** (m - 1) * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + m)) % M;
+            currentHash = ((currentHash - (2 ** (substring.length - 1) * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + substring.length)) % M;
             currentSubstring = string.slice(i + 1, i + substring.length + 1);
+    }
+    if (result.length === 0)
+    {
+        result.push(-1);
+        return [result, collisions];
     }
 
     return [result, collisions];
@@ -133,9 +142,10 @@ function getHashRK(str, M)
 
 
 // test for hash
+const inputFile = "test2.txt";
+const inputText = fs.readFileSync(inputFile, 'utf8');
 
-const inputText = fs.readFileSync("warandpeace.txt", 'utf8');
-const substr = "Андрей Болконский";
+const substr = "GTAGTGTGTCTACGTCTTTCTTTGACAGTACCGCGTA";
 
 console.time("bruteForce");
 const bruteForceResult = bruteForce(inputText, substr);
@@ -165,7 +175,7 @@ function printSubstringWithContext(inputText, result, substr, context = 10)
 //printSubstringWithContext(inputText, result, substr, 30);
 //console.log();
 //printSubstringWithContext(inputText, bruteForceResult, substr, 30);
-
+console.log();
 console.log("Результат поиска bruteForce:", bruteForceResult);
 console.log();
 console.log("Результат поиска: обычных хэш:", result);
@@ -173,3 +183,9 @@ console.log("Количество коллизий обычных хэш:", coll
 console.log();
 console.log("Результат поиска: Rabin-Karp:", resultRK);
 console.log("Количество коллизий Rabin-Karp:", collisionsRK);
+
+if (bruteForceResult.length === result.length && bruteForceResult.length === resultRK.length)
+{
+    console.log();
+    console.log("Количество вхождений одинаковое");
+}
