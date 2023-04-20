@@ -10,14 +10,13 @@ possible solutions:
 
 */
 
-
-function bruteForce(str, substr) 
+function bruteForce(str, substr)
 {
     let result = [];
-    for (let i = 0; i < str.length; i++) 
+    for (let i = 0; i < str.length; i++)
     {
         let j = 0;
-        while (j < substr.length && str[i + j] === substr[j]) 
+        while (j < substr.length && str[i + j] === substr[j])
         {
             j++;
         }
@@ -39,16 +38,19 @@ function bruteForce(str, substr)
 
 function searchSubstring(string, substring)
 {
-    const M = 11047; // простое число для взятия остатка по модулю //11383 fine //11071 better // 11047 smallest working with warandpeace.txt
+    //const M = 11047; // простое число для взятия остатка по модулю //11383 fine //11071 better // 11047 smallest working with warandpeace.txt
+    const M = Math.pow(10, 9) + 7;
     let collisions = 0; // счетчик коллизий
     const substringHash = getHash(substring, M); // хеш-значение подстроки
     const result = []; // массив с результатами
+    const subStrLen = substring.length; // длина подстроки
+    const strLen = string.length; // длина строки
 
     // вычисляем хеш первой подстроки
-    let currentSubstring = string.slice(0, substring.length);
+    let currentSubstring = string.slice(0, subStrLen);
     let currentHash = getHash(currentSubstring, M);
 
-    for (let i = 0; i <= string.length - substring.length; i++)
+    for (let i = 0; i <= strLen - subStrLen; i++)
     {
         if (currentHash === substringHash) // если хеши совпали, проверяем равенство строк
         {
@@ -68,8 +70,8 @@ function searchSubstring(string, substring)
         }
 
         // вычисляем хеш следующей подстроки с помощью оптимизации двигающегося окна
-        currentHash = (currentHash - string.charCodeAt(i) + string.charCodeAt(i + substring.length)) % M;
-        currentSubstring = string.slice(i + 1, i + substring.length + 1);
+        currentHash = (currentHash - string.charCodeAt(i) + string.charCodeAt(i + subStrLen)) % M;
+        currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
     if (result.length === 0) // если не нашли вхождений подстроки, то возвращаем -1
     {
@@ -90,22 +92,24 @@ function getHash(string, M)
     return hash;
 }
 
-
 // Rabin-Karp algorithm
 function rabinKarp(string, substring)
 {
-    let M = 1000003; // простое число для взятия остатка по модулю
-    //const n = string.length;
-    //const m = substring.length;
+    const M = 1000003; // простое число для взятия остатка по модулю
+    //const M = Math.pow(10, 9) + 7;
+
+    const subStrLen = substring.length; // длина подстроки
+    const strLen = string.length; // длина строки
+
     let collisions = 0; // счетчик коллизий
     let substringHash = getHashRK(substring, M);
-    let currentHash = getHashRK(string.slice(0, substring.length), M);
-    let currentSubstring = string.slice(0, substring.length);
+    let currentHash = getHashRK(string.slice(0, subStrLen), M);
+    let currentSubstring = string.slice(0, subStrLen);
     let result = [];
+    const p = 2 ** (subStrLen - 1);
 
-    for (let i = 0; i <= string.length - substring.length; i++)
+    for (let i = 0; i <= strLen - subStrLen; i++)
     {
-        //console.log("currentSubstring: ", currentSubstring);
         if (currentHash === substringHash)
         {
             if (currentSubstring === substring)
@@ -123,8 +127,9 @@ function rabinKarp(string, substring)
             }
         }
         // оптимизация двигающегося окна
-            currentHash = ((currentHash - (2 ** (substring.length - 1) * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + substring.length)) % M;
-            currentSubstring = string.slice(i + 1, i + substring.length + 1);
+        //currentHash = ((currentHash - (2 ** (substring.length - 1) * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + substring.length)) % M;
+        currentHash = ((currentHash - (p * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + subStrLen)) % M;
+        currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
     if (result.length === 0)
     {
@@ -144,22 +149,18 @@ function getHashRK(str, M)
     {
         hash = (hash + (2 ** (n - i - 1) * str.charCodeAt(i)) % M) % M;
     }
-
     return hash;
 }
 
-
-
 // test for hash
-const inputFile = "test2.txt";
+const inputFile = "warandpeace.txt";
 const inputText = fs.readFileSync(inputFile, 'utf8');
 
-const substr = "GTAGTGTGTCTACGTCTTTCTTTGACAGTACCGCGTA";
+const substr = "Андрей Болконский";
 
 console.time("bruteForce");
 const bruteForceResult = bruteForce(inputText, substr);
 console.timeEnd("bruteForce");
-
 
 console.time("searchSubstring");
 const [result, collisions] = searchSubstring(inputText, substr);
