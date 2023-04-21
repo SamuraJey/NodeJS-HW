@@ -1,9 +1,13 @@
-function getSubstringRK(text, pattern) {
+const fs = require('fs');
+function getSubstringRK(text, pattern)
+{
     const result = [];
   
-    const alphabetSize = 256;
+    const alphabetSize = 16000;
     const mod = 9973;
-  
+    //const mod = 1000003;
+    
+    let coll = 0;
     let patternHash = pattern.charCodeAt(0) % mod;
     let textHash = text.charCodeAt(0) % mod;
   
@@ -27,10 +31,21 @@ function getSubstringRK(text, pattern) {
     {
       if (patternHash === textHash && compareText(text, i, pattern)) 
       {
-        result.push(i);
+        if (compareText(text, i, pattern)) 
+        {
+          result.push(i);
+        }
+        else
+        {
+          coll++;
+        }
+        
       }
   
-      if (i === text.length - pattern.length) break;
+      if (i === text.length - pattern.length)
+      {
+      break;
+      }
   
       textHash -= (text.charCodeAt(i) * firstIndexHash) % mod;
       textHash += mod;
@@ -39,7 +54,7 @@ function getSubstringRK(text, pattern) {
       textHash %= mod;
     }
   
-    return result;
+    return [result, coll];
   }
 
 function compareText(text, index, pattern) 
@@ -54,8 +69,16 @@ function compareText(text, index, pattern)
     return true;
 }
   
-  // test for Rabin-Karp
-    const text = 'Hello ';
-    const pattern = 'world';
-    const result = getSubstringRK(text, pattern);
-    console.log(result);
+
+const inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt";
+const inputText = fs.readFileSync(inputFile, 'utf8');
+
+const substr = "Андрей Болконский";
+
+console.time("searchSubstring");
+getSubstringRK(inputText, substr);
+console.timeEnd("searchSubstring");
+
+
+const result = getSubstringRK(inputText, substr);
+console.log(result);
