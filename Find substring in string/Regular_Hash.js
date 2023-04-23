@@ -10,10 +10,20 @@ possible solutions:
 
 */
 
-var massiv = []
-for(let i = 0; i <= 1000; i++)
+function dedreeOfTwo(number, M = 9973)
 {
-    massiv.push(Math.pow(2,i));
+    const powersOfTwo = [1];
+    for (let i = 1; i < number; i++) 
+    {
+        powersOfTwo.push((powersOfTwo[i - 1] * 2) % M);
+    }
+    return powersOfTwo;
+}
+
+var massiv = []
+for(let i = 0; i <= 200; i++)
+{
+    massiv.push(Math.pow(2, i));
 }
 
 function bruteForce(str, substr)
@@ -101,7 +111,7 @@ function getHash(string, M)
 }
 
 // Rabin-Karp algorithm
-function rabinKarp(string, substring, powerOfTwo)
+function rabinKarp(string, substring, powersOfTwo)
 {
     //const M = 1000003; // простое число для взятия остатка по модулю
     const M = 9973;
@@ -111,8 +121,8 @@ function rabinKarp(string, substring, powerOfTwo)
     const strLen = string.length; // длина строки
 
     let collisions = 0; // счетчик коллизий
-    let substringHash = getHashRK(substring, M);
-    let currentHash = getHashRK(string.slice(0, subStrLen), M);
+    let substringHash = getHashRK(substring, M, powersOfTwo);
+    let currentHash = getHashRK(string.slice(0, subStrLen), M, powersOfTwo);
     let currentSubstring = string.slice(0, subStrLen);
     let result = [];
     //const p = 2 ** (subStrLen - 1);
@@ -131,11 +141,9 @@ function rabinKarp(string, substring, powerOfTwo)
             }
         }
 
-        // оптимизация двигающегося окна
-        //currentHash = ((currentHash - (2 ** (substring.length - 1) * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + substring.length)) % M;
-        currentHash = ((currentHash - (massiv[substring.length - 1] * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + substring.length)) % M;
-        
-        //currentHash = ((currentHash - (p * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + subStrLen)) % M;
+        const leftChar = string.charCodeAt(i);
+        const rightChar = string.charCodeAt(i + subStrLen);
+        currentHash = ((currentHash - (powersOfTwo[subStrLen - 1] * leftChar) % M + M) % M * 2 + rightChar) % M;
         currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
     
@@ -148,7 +156,7 @@ function rabinKarp(string, substring, powerOfTwo)
 }
 
 
-function getHashRK(str, M)
+function getHashRK(str, M, powersOfTwo)
 {
     //console.time("getHashRK");
     let hash = 0;
@@ -156,7 +164,7 @@ function getHashRK(str, M)
 
     for (let i = 0; i < n; i++)
     {
-        hash = (hash + (2 ** (n - i - 1) * str.charCodeAt(i)) % M) % M;
+        hash = (hash + (powersOfTwo[n - i - 1] * str.charCodeAt(i)) % M) % M;
     }
     //console.timeEnd("getHashRK");
     return hash;
@@ -167,6 +175,7 @@ const inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in
 const inputText = fs.readFileSync(inputFile, 'utf8');
 
 const substr = "Андрей Болконский";
+powOfTwo = dedreeOfTwo(substr.length, 9973);
 
 console.time("bruteForce");
 const [bruteForceResult, counter1] = bruteForce(inputText, substr);
@@ -179,7 +188,7 @@ const [result, collisions, counter2] = searchSubstring(inputText, substr);
 console.timeEnd("searchSubstring");
 
 console.time("searchSubstringRK");
-const [resultRK, collisionsRK] = rabinKarp(inputText, substr);
+const [resultRK, collisionsRK] = rabinKarp(inputText, substr, powOfTwo);
 //rabinKarp(inputText, substr);
 console.timeEnd("searchSubstringRK");
 
