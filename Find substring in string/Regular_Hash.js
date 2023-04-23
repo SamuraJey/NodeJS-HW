@@ -10,9 +10,16 @@ possible solutions:
 
 */
 
+var massiv = []
+for(let i = 0; i <= 1000; i++)
+{
+    massiv.push(Math.pow(2,i));
+}
+
 function bruteForce(str, substr)
 {
     let result = [];
+    let counter = 0; // счетчик сравнений
     for (let i = 0; i < str.length; i++)
     {
         let j = 0;
@@ -23,7 +30,8 @@ function bruteForce(str, substr)
         if (j === substr.length)
         {
             result.push(i);
-            if (result.length === 10)
+            counter++;
+            if (result.length === 10 && false)
             {
                 break;
             }
@@ -33,7 +41,7 @@ function bruteForce(str, substr)
     {
         result.push(-1);
     }
-    return result;
+    return [result, counter];
 }
 
 function searchSubstring(string, substring)
@@ -58,7 +66,7 @@ function searchSubstring(string, substring)
             {
                 result.push(i); // добавляем индекс начала подстроки в массив результатов
 
-                if (result.length === 10) // если нашли 10 вхождений, то выходим из цикла
+                if (result.length === 10 && false) // если нашли 10 вхождений, то выходим из цикла
                 {
                     break;
                 }
@@ -93,9 +101,10 @@ function getHash(string, M)
 }
 
 // Rabin-Karp algorithm
-function rabinKarp(string, substring)
+function rabinKarp(string, substring, powerOfTwo)
 {
-    const M = 1000003; // простое число для взятия остатка по модулю
+    //const M = 1000003; // простое число для взятия остатка по модулю
+    const M = 9973;
     //const M = Math.pow(10, 9) + 7;
 
     const subStrLen = substring.length; // длина подстроки
@@ -106,8 +115,8 @@ function rabinKarp(string, substring)
     let currentHash = getHashRK(string.slice(0, subStrLen), M);
     let currentSubstring = string.slice(0, subStrLen);
     let result = [];
-    const p = 2 ** (subStrLen - 1);
-
+    //const p = 2 ** (subStrLen - 1);
+    
     for (let i = 0; i <= strLen - subStrLen; i++)
     {
         if (currentHash === substringHash)
@@ -115,33 +124,33 @@ function rabinKarp(string, substring)
             if (currentSubstring === substring)
             {
                 result.push(i);
-
-                if (result.length === 10)
-                {
-                    break;
-                }
             }
             else
             {
                 collisions++;
             }
         }
+
         // оптимизация двигающегося окна
         //currentHash = ((currentHash - (2 ** (substring.length - 1) * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + substring.length)) % M;
-        currentHash = ((currentHash - (p * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + subStrLen)) % M;
+        currentHash = ((currentHash - (massiv[substring.length - 1] * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + substring.length)) % M;
+        
+        //currentHash = ((currentHash - (p * string.charCodeAt(i)) % M + M) % M * 2 + string.charCodeAt(i + subStrLen)) % M;
         currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
+    
     if (result.length === 0)
     {
         result.push(-1);
         return [result, collisions];
     }
-
     return [result, collisions];
 }
 
+
 function getHashRK(str, M)
 {
+    //console.time("getHashRK");
     let hash = 0;
     const n = str.length;
 
@@ -149,25 +158,29 @@ function getHashRK(str, M)
     {
         hash = (hash + (2 ** (n - i - 1) * str.charCodeAt(i)) % M) % M;
     }
+    //console.timeEnd("getHashRK");
     return hash;
 }
 
 // test for hash
-const inputFile = "warandpeace.txt";
+const inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt";
 const inputText = fs.readFileSync(inputFile, 'utf8');
 
 const substr = "Андрей Болконский";
 
 console.time("bruteForce");
-const bruteForceResult = bruteForce(inputText, substr);
+const [bruteForceResult, counter1] = bruteForce(inputText, substr);
+//bruteForce(inputText, substr);
 console.timeEnd("bruteForce");
 
 console.time("searchSubstring");
-const [result, collisions] = searchSubstring(inputText, substr);
+const [result, collisions, counter2] = searchSubstring(inputText, substr);
+//searchSubstring(inputText, substr);
 console.timeEnd("searchSubstring");
 
 console.time("searchSubstringRK");
 const [resultRK, collisionsRK] = rabinKarp(inputText, substr);
+//rabinKarp(inputText, substr);
 console.timeEnd("searchSubstringRK");
 
 //funtion to print substrings with context
@@ -187,12 +200,16 @@ function printSubstringWithContext(inputText, result, substr, context = 10)
 //printSubstringWithContext(inputText, bruteForceResult, substr, 30);
 console.log();
 console.log("Результат поиска bruteForce:", bruteForceResult);
+console.log("Количество сравнений bruteForce:", counter1);
 console.log();
 console.log("Результат поиска: обычных хэш:", result);
 console.log("Количество коллизий обычных хэш:", collisions);
+
 console.log();
 console.log("Результат поиска: Rabin-Karp:", resultRK);
 console.log("Количество коллизий Rabin-Karp:", collisionsRK);
+
+
 
 if (bruteForceResult.length === result.length && bruteForceResult.length === resultRK.length)
 {
