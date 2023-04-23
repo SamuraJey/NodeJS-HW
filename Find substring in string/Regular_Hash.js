@@ -59,14 +59,21 @@ function searchSubstring(string, substring)
     //const M = 11047; // простое число для взятия остатка по модулю //11383 fine //11071 better // 11047 smallest working with warandpeace.txt
     const M = Math.pow(10, 9) + 7;
     let collisions = 0; // счетчик коллизий
-    const substringHash = getHash(substring, M); // хеш-значение подстроки
+    
     const result = []; // массив с результатами
     const subStrLen = substring.length; // длина подстроки
     const strLen = string.length; // длина строки
 
     // вычисляем хеш первой подстроки
     let currentSubstring = string.slice(0, subStrLen);
-    let currentHash = getHash(currentSubstring, M);
+    let currentHash = 0;
+    let substringHash = 0;
+
+    for (let k = 0; k < subStrLen; k++) // вычисляем хеш подстроки и хеш первой подстроки в строке
+    {
+        substringHash = (substringHash + substring.charCodeAt(k)) % M;
+        currentHash = (currentHash + string.charCodeAt(k)) % M;
+    }
 
     for (let i = 0; i <= strLen - subStrLen; i++)
     {
@@ -75,19 +82,12 @@ function searchSubstring(string, substring)
             if (currentSubstring === substring) // если строки равны, то нашли вхождение подстроки
             {
                 result.push(i); // добавляем индекс начала подстроки в массив результатов
-
-                if (result.length === 10 && false) // если нашли 10 вхождений, то выходим из цикла
-                {
-                    break;
-                }
             }
             else
             {
                 collisions++; // иначе увеличиваем счетчик коллизий
             }
         }
-
-        // вычисляем хеш следующей подстроки с помощью оптимизации двигающегося окна
         currentHash = (currentHash - string.charCodeAt(i) + string.charCodeAt(i + subStrLen)) % M;
         currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
@@ -121,12 +121,20 @@ function rabinKarp(string, substring, powersOfTwo)
     const strLen = string.length; // длина строки
 
     let collisions = 0; // счетчик коллизий
-    let substringHash = getHashRK(substring, M, powersOfTwo);
-    let currentHash = getHashRK(string.slice(0, subStrLen), M, powersOfTwo);
+    // let substringHash = getHashRK(substring, M, powersOfTwo);
+    // let currentHash = getHashRK(string.slice(0, subStrLen), M, powersOfTwo);
     let currentSubstring = string.slice(0, subStrLen);
     let result = [];
-    //const p = 2 ** (subStrLen - 1);
-    
+
+    let substringHash = 0;
+    let currentHash = 0;
+
+    for (let i = 0; i < subStrLen; i++)
+    {
+        currentHash = (currentHash + (powersOfTwo[subStrLen - i - 1] * string.charCodeAt(i)) % M) % M;
+        substringHash = (substringHash + (powersOfTwo[subStrLen - i - 1] * substring.charCodeAt(i)) % M) % M;
+    }
+
     for (let i = 0; i <= strLen - subStrLen; i++)
     {
         if (currentHash === substringHash)
@@ -140,7 +148,6 @@ function rabinKarp(string, substring, powersOfTwo)
                 collisions++;
             }
         }
-
         const leftChar = string.charCodeAt(i);
         const rightChar = string.charCodeAt(i + subStrLen);
         currentHash = ((currentHash - (powersOfTwo[subStrLen - 1] * leftChar) % M + M) % M * 2 + rightChar) % M;
@@ -156,19 +163,18 @@ function rabinKarp(string, substring, powersOfTwo)
 }
 
 
-function getHashRK(str, M, powersOfTwo)
-{
-    //console.time("getHashRK");
-    let hash = 0;
-    const n = str.length;
-
-    for (let i = 0; i < n; i++)
-    {
-        hash = (hash + (powersOfTwo[n - i - 1] * str.charCodeAt(i)) % M) % M;
-    }
-    //console.timeEnd("getHashRK");
-    return hash;
-}
+// function getHashRK(str, M, powersOfTwo)
+// {
+//     //console.time("getHashRK");
+//     let hash = 0;
+//     const n = str.length;
+//     for (let i = 0; i < n; i++)
+//     {
+//         hash = (hash + (powersOfTwo[n - i - 1] * str.charCodeAt(i)) % M) % M;
+//     }
+//     //console.timeEnd("getHashRK");
+//     return hash;
+// }
 
 // test for hash
 const inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt";
