@@ -4,6 +4,9 @@ let [mode, inputFile, outFile, inpSubStr] = process.argv.slice(2);
 
 const allowedModes = ['-b', '-r', '--brute-force', '--hash','--rabin-karp'];
 
+const EM = 16411;
+//console.log(EM);
+
 function dedreeOfTwo(number, M = 9973)
 {
     const powersOfTwo = [1];
@@ -38,10 +41,10 @@ function bruteForce(str, substr)
     return [result, counter];
 }
 
-function searchSubstring(string, substring)
+function searchSubstring(string, substring, M)
 {
     //const M = 11047; // простое число для взятия остатка по модулю //11383 fine //11071 better // 11047 smallest working with warandpeace.txt
-    const M = Math.pow(10, 9) + 7;
+    //const M = Math.pow(10, 9) + 7;
     let collisions = 0; // счетчик коллизий
     
     const result = []; // массив с результатами
@@ -72,7 +75,9 @@ function searchSubstring(string, substring)
                 collisions++; // иначе увеличиваем счетчик коллизий
             }
         }
-        currentHash = (currentHash - string.charCodeAt(i) + string.charCodeAt(i + subStrLen)) % M;
+        const leftChar = string.charCodeAt(i);
+        const rightChar = string.charCodeAt(i + subStrLen);
+        currentHash = (currentHash - leftChar + rightChar) % M;
         currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
     if (result.length === 0) // если не нашли вхождений подстроки, то возвращаем -1
@@ -83,16 +88,6 @@ function searchSubstring(string, substring)
     return [result, collisions]; // возвращаем массив с результатами и количеством коллизий
 }
 
-// функция для вычисления хеш-значения строки
-function getHash(string, M)
-{
-    let hash = 0;
-    for (let i = 0; i < string.length; i++)
-    {
-        hash = (hash + string.charCodeAt(i)) % M;
-    }
-    return hash;
-}
 
 // Rabin-Karp algorithm
 function rabinKarp(string, substring, powersOfTwo, M = 9973)
@@ -145,63 +140,23 @@ function rabinKarp(string, substring, powersOfTwo, M = 9973)
 }
 
 
-// test for hash
+
 //inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt";
 inputText = fs.readFileSync(inputFile, 'utf8');
 
-const EM = 9973;
-const substr = "Андрей Болконский";
+//funtion to print substrings with context
+function printSubstringWithContext(inputText, result, substr, context = 10)
+{
+    console.log(result);
+    for (let i = 0; i < result.length; i++)
+    {
+        const startIndex = result[i];
+        const endIndex = startIndex + substr.length;
+        const fullSubstring = inputText.slice(startIndex, endIndex + context);
+        console.log(fullSubstring);
+    }
+}
 
-//powOfTwo = dedreeOfTwo(substr.length, 9973);
-
-// console.time("bruteForce");
-// const [bruteForceResult, counter1] = bruteForce(inputText, substr);
-// //bruteForce(inputText, substr);
-// console.timeEnd("bruteForce");
-
-// console.time("searchSubstring");
-// const [result, collisions, counter2] = searchSubstring(inputText, substr);
-// //searchSubstring(inputText, substr);
-// console.timeEnd("searchSubstring");
-
-// console.time("searchSubstringRK");
-// const [resultRK, collisionsRK] = rabinKarp(inputText, substr, powOfTwo, EM);
-// //rabinKarp(inputText, substr);
-// console.timeEnd("searchSubstringRK");
-
-// //funtion to print substrings with context
-// function printSubstringWithContext(inputText, result, substr, context = 10)
-// {
-//     for (let i = 0; i < result.length; i++)
-//     {
-//         const startIndex = result[i];
-//         const endIndex = startIndex + substr.length;
-//         const fullSubstring = inputText.slice(startIndex, endIndex + context);
-//         console.log(fullSubstring);
-//     }
-// }
-
-// //printSubstringWithContext(inputText, result, substr, 30);
-// //console.log();
-// //printSubstringWithContext(inputText, bruteForceResult, substr, 30);
-// console.log();
-// console.log("Результат поиска bruteForce:", bruteForceResult);
-// console.log("Количество сравнений bruteForce:", counter1);
-// console.log();
-// console.log("Результат поиска: обычных хэш:", result);
-// console.log("Количество коллизий обычных хэш:", collisions);
-
-// console.log();
-// console.log("Результат поиска: Rabin-Karp:", resultRK);
-// console.log("Количество коллизий Rabin-Karp:", collisionsRK);
-
-
-
-// if (bruteForceResult.length === result.length && bruteForceResult.length === resultRK.length)
-// {
-//     console.log();
-//     console.log("Количество вхождений одинаковое");
-// }
 
 if (!allowedModes.includes(mode.toLowerCase())) // Проверка на то, что введенный режим является одним из допустимых. Если нет, то возвращает true и выполняется код внутри if
 {
@@ -215,7 +170,7 @@ else
     var start = 0;
     var end = 0;
     var time = 0;
-    var powOfTwo = dedreeOfTwo(inpSubStr.length, 9973);
+    var powOfTwo = dedreeOfTwo(inpSubStr.length, EM);
 }
 
 switch (mode) 
@@ -248,8 +203,9 @@ switch (mode)
         break;
 
         case "--hash":
+
             start = Date.now();
-            let hashRes = searchSubstring(inputText, inpSubStr);
+            let hashRes = searchSubstring(inputText, inpSubStr, 14966);
             end = Date.now();
             time = end - start;
             fs.appendFileSync(outFile, `Результат поиска обычных хэш за ${time} ms с ${hashRes[1]} коллизиями:\n`, err => {
@@ -284,6 +240,7 @@ switch (mode)
 
         case "-r" || "--rabinKarp":
             start = Date.now();
+            // let rabinKarpRes = rabinKarp(inputText, inpSubStr, powOfTwo, EM);
             let rabinKarpRes = rabinKarp(inputText, inpSubStr, powOfTwo, EM);
             end = Date.now();
             time = end - start;
