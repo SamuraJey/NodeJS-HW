@@ -2,7 +2,7 @@ const fs = require('fs');
 let [mode, inputFile, inpSubStrFile, outFile] = process.argv.slice(2);
 // console.log(mode, inputFile, outFile, inpSubStr);
 
-const allowedModes = ['-b', '-r', '--brute-force', '--hash','--rabin-karp'];
+const allowedModes = ['-b', '-r', '--brute-force', '--hash','--rabin-karp', '-h', '--help'];
 
 const EM = 16411;
 //console.log(EM);
@@ -77,7 +77,8 @@ function searchSubstring(string, substring, M)
         }
         const leftChar = string.charCodeAt(i);
         const rightChar = string.charCodeAt(i + subStrLen);
-        currentHash = (currentHash - leftChar + rightChar) % M;
+        currentHash = (currentHash - leftChar % M + rightChar) % M;
+        //console.log(currentHash);
         currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
     if (result.length === 0) // если не нашли вхождений подстроки, то возвращаем -1
@@ -166,6 +167,18 @@ if (!allowedModes.includes(mode.toLowerCase())) // Проверка на то, �
 }
 else
 {
+    if(mode === "-h" || mode === "--help")
+    {
+            console.log(`\x1b[32m
+            Usage: node index.js [options]
+            Options:
+            -b, --bruteForce    Brute force search
+            --hash              Hash search
+            -r, --rabinKarp     Rabin-Karp search
+            -h, --help          Show help
+            \x1b[0m`);
+            return 0;
+    }
     //fs.writeFileSync(outFile, ""); // очищаем файл
     inputText = fs.readFileSync(inputFile, 'utf8');
     inputSubStr = fs.readFileSync(inpSubStrFile, 'utf8')
@@ -179,9 +192,9 @@ switch (mode)
 {
     case "-b" || "--bruteForce":
         // console.time("bruteForce");
-        start = Date.now();
+        start = performance.now();
         let brutForceRes = bruteForce(inputText, inputSubStr);
-        end = Date.now();
+        end = performance.now();
         time = end - start;
 
         fs.appendFileSync(outFile, `Результат поиска bruteForce за ${time} ms:\n`, err => {
@@ -205,10 +218,9 @@ switch (mode)
         break;
 
         case "--hash":
-
-            start = Date.now();
-            let hashRes = searchSubstring(inputText, inputSubStr, 101); //4099 4327
-            end = Date.now();
+            start = performance.now();
+            let hashRes = searchSubstring(inputText, inputSubStr, 101); //4099 4327 101
+            end = performance.now();
             time = end - start;
             fs.appendFileSync(outFile, `Результат поиска обычных хэш за ${time} ms с ${hashRes[1]} коллизиями:\n`, err => {
                 if (err) {
@@ -232,7 +244,8 @@ switch (mode)
                     break;
                 }
                 fs.appendFileSync(outFile, hashRes[0][i] + "\n", err => {
-                    if (err) {
+                    if (err) 
+                    {
                         throw err;
                     }
                 });
