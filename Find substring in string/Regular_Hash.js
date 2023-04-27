@@ -5,6 +5,7 @@ let [mode, inputFile, inpSubStrFile, outFile] = process.argv.slice(2);
 const allowedModes = ['-b', '-r', '--brute-force', '--hash','--rabin-karp', '-h', '--help'];
 
 const EM = 16411;
+// const EM = Math.pow(10, 9) + 7;
 //console.log(EM);
 
 function dedreeOfTwo(number, M = 9973)
@@ -20,7 +21,7 @@ function dedreeOfTwo(number, M = 9973)
 function bruteForce(str, substr)
 {
     let result = [];
-    let counter = 0; // счетчик сравнений
+    let counter = 0;
     for (let i = 0; i < str.length; i++)
     {
         let j = 0;
@@ -31,7 +32,6 @@ function bruteForce(str, substr)
         if (j === substr.length)
         {
             result.push(i);
-            counter++;
         }
     }
     if (result.length === 0)
@@ -77,7 +77,8 @@ function searchSubstring(string, substring, M)
         }
         const leftChar = string.charCodeAt(i);
         const rightChar = string.charCodeAt(i + subStrLen);
-        currentHash = (currentHash - leftChar % M + rightChar) % M;
+        //currentHash = (currentHash - leftChar + rightChar + M) % M; // DONE!!! TODO: убрать отрицательные значения
+        currentHash = ((currentHash - leftChar + rightChar) % M + M) % M;
         //console.log(currentHash);
         currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
@@ -186,6 +187,7 @@ else
     var end = 0;
     var time = 0;
     var powOfTwo = dedreeOfTwo(inputSubStr.length, EM);
+    var count = 0;
 }
 
 switch (mode) 
@@ -195,9 +197,14 @@ switch (mode)
         start = performance.now();
         let brutForceRes = bruteForce(inputText, inputSubStr);
         end = performance.now();
-        time = end - start;
-
-        fs.appendFileSync(outFile, `Результат поиска bruteForce за ${time} ms:\n`, err => {
+        time = (end - start).toFixed(3);
+        count = (brutForceRes[0]).length;
+        if(brutForceRes[0][0] === -1)
+        {
+            count = 0;
+        }
+        //console.log(count);
+        fs.appendFileSync(outFile, `Результат поиска bruteForce за ${time} ms c ${count} вхождениями:\n`, err => {
             if (err) {
               throw err;
             }
@@ -219,10 +226,15 @@ switch (mode)
 
         case "--hash":
             start = performance.now();
-            let hashRes = searchSubstring(inputText, inputSubStr, 101); //4099 4327 101
+            let hashRes = searchSubstring(inputText, inputSubStr, EM); //4099 4327 101
             end = performance.now();
-            time = end - start;
-            fs.appendFileSync(outFile, `Результат поиска обычных хэш за ${time} ms с ${hashRes[1]} коллизиями:\n`, err => {
+            time = (end - start).toFixed(3);
+            count = (hashRes[0]).length;
+            if(hashRes[0][0] === -1)
+            {
+                count = 0;
+            }
+            fs.appendFileSync(outFile, `Результат поиска обычных хэш за ${time} ms с ${hashRes[1]} коллизиями и ${count} вхождениями:\n`, err => {
                 if (err) {
                     throw err;
                 }
@@ -254,22 +266,27 @@ switch (mode)
             break;
 
         case "-r" || "--rabinKarp":
-            start = Date.now();
+            start = performance.now();
             // let rabinKarpRes = rabinKarp(inputText, inpSubStr, powOfTwo, EM);
             let rabinKarpRes = rabinKarp(inputText, inputSubStr, powOfTwo, EM);
-            end = Date.now();
-            time = end - start;
+            end = performance.now();
+            time = (end - start).toFixed(3);
+            count = (rabinKarpRes[0]).length;
+            if (rabinKarpRes[0][0] === -1)
+            {
+                count = 0;
+            }
             const check1 = bruteForce(inputText, inputSubStr);
-            // if (check1[0].length !== rabinKarpRes[0].length)
-            // {
-            //     console.log("Количество вхождений не совпадает");
-            // }
-            // else
-            // {
-            //     console.log("Количество вхождений совпадает");
-            // }
+            if (check1[0].length !== rabinKarpRes[0].length)
+            {
+                console.log("Количество вхождений не совпадает");
+            }
+            else
+            {
+                console.log("Количество вхождений совпадает");
+            }
 
-            fs.appendFileSync(outFile, `Результат поиска Rabin-Karp за ${time} ms c ${rabinKarpRes[1]} коллизиями:\n`, err => {
+            fs.appendFileSync(outFile, `Результат поиска Rabin-Karp за ${time} ms c ${rabinKarpRes[1]} коллизиями и ${count} вхождениями:\n`, err => {
                 if (err) {
                     throw err;
                 }
