@@ -15,16 +15,24 @@ function getSubstringRK(text, pattern)
   
     for(let i = 1; i < pattern.length; i++) 
     {
+      patternHash = (patternHash * alphabetSize + pattern.charCodeAt(i)) % mod;
+      /*
       patternHash *= alphabetSize;
       patternHash += pattern.charCodeAt(i);
       patternHash %= mod;
-  
+      */
+      textHash = (textHash * alphabetSize + text.charCodeAt(i)) % mod;
+      /*
       textHash *= alphabetSize;
       textHash += text.charCodeAt(i);
       textHash %= mod;
-  
+     */ 
+      firstIndexHash = (firstIndexHash * alphabetSize) % mod;
+      /*
       firstIndexHash *= alphabetSize;
       firstIndexHash %= mod;
+      */
+     //console.log(patternHash, textHash, firstIndexHash);
     }
   
     for (let i = 0; i <= text.length - pattern.length; i++) 
@@ -44,14 +52,16 @@ function getSubstringRK(text, pattern)
   
       if (i === text.length - pattern.length)
       {
-      break;
+        break;
       }
-  
+      //textHash = (((textHash - text.charCodeAt(i) * firstIndexHash) % mod + mod) * alphabetSize + text.charCodeAt(i + pattern.length)) % mod;
+      
       textHash -= (text.charCodeAt(i) * firstIndexHash) % mod;
       textHash += mod;
       textHash *= alphabetSize;
       textHash += text.charCodeAt(i + pattern.length);
       textHash %= mod;
+      
     }
   
     return [result, coll];
