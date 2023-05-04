@@ -18,61 +18,6 @@ function dedreeOfTwo(number, M = 9973)
     return powersOfTwo;
 }
 
-function buildBadMatchTable(text) 
-{
-    const table = {};
-    const strLen = text.length;
-    for (let i = 0; i < strLen - 1; i++) 
-    {
-        table[text[i]] = strLen - i - 1;
-    }
-    if (table[text[strLen - 1]] === undefined)
-    {
-        table[text[strLen - 1]] = strLen;
-    }
-    return table;
-}
-
-function boyerMoore(text, pattern)
-{
-    const badMatchTable = buildBadMatchTable(pattern) // Создаем таблицу смещейний
-    let offset = 0 // Смещение
-    let res = []; 
-    const patternLastIndex = pattern.length - 1; // Индекс последнего символа подстроки
-    const maxOffset = text.length - pattern.length; // Максимальное смещение
-    if (maxOffset < 0) return -1 // Если длина подстроки больше длины строки, то нет смысла искать
-    while (offset <= maxOffset) 
-    {
-        let scanIndex = 0;
-        while (pattern[scanIndex] === text[scanIndex + offset]) 
-        {
-            if (scanIndex === patternLastIndex) // Если вся подстрока совпала, то добавляем индекс вхождения в массив
-            {
-                res.push(offset);
-            }
-            scanIndex++;
-        }
-        const badMatchString = text[offset + patternLastIndex];
-        if (badMatchTable[badMatchString]) 
-        {
-            offset += badMatchTable[badMatchString];
-        } 
-        else 
-        {
-            offset++;
-        }
-    }
-    if (res.length != 0) 
-    {
-        return res;
-    }
-    else 
-    {
-        res.push(-1);
-        return res;
-    }
-
-}
 
 function bruteForce(str, substr)
 {
@@ -198,6 +143,92 @@ function rabinKarp(string, substring, powersOfTwo, M = 9973)
 }
 
 
+class BoyerMoore 
+{
+    constructor(pattern) 
+    {
+        this.pattern = pattern;
+        this.badCharTable = this.makeBadCharTable();
+        this.goodSuffixTable = this.makeGoodSuffixTable();
+    }
+  
+    search(text) {
+      const res = [];
+      const strLength = text.length;
+      const subStrLength = this.pattern.length;
+  
+      if (subStrLength === 0 || strLength === 0 || subStrLength > strLength) {
+        res.push(-1);
+        return res;
+      }
+  
+      for (let i = subStrLength - 1, j; i < strLength;) {
+        for (j = subStrLength - 1; this.pattern[j] === text[i]; i--, j--) {
+          if (j === 0) {
+            res.push(i);
+            break;
+          }
+        }
+  
+        const charCode = text.charCodeAt(i);
+        i += Math.max(
+          this.goodSuffixTable[subStrLength - 1 - j],
+          this.badCharTable[charCode]
+        );
+      }
+  
+      if (res.length === 0) {
+        res.push(-1);
+        return res;
+      }
+      return res;
+    }
+  
+    makeBadCharTable() {
+      const patternLength = this.pattern.length;
+      const table = new Array(32768).fill(patternLength);
+  
+      for (let i = 0; i < patternLength - 1; i++) {
+        const charCode = this.pattern.charCodeAt(i);
+        table[charCode] = patternLength - i - 1;
+      }
+  
+      return table;
+    }
+  
+    makeGoodSuffixTable() {
+      const patternLength = this.pattern.length;
+      const table = new Array(patternLength);
+      let lastPrefixPosition = patternLength;
+  
+      for (let i = patternLength; i > 0; i--) {
+        if (this.pattern.startsWith(this.pattern.slice(i))) {
+          lastPrefixPosition = i;
+        }
+        table[patternLength - i] = lastPrefixPosition - 1 + patternLength;
+      }
+  
+      for (let i = 0; i < patternLength - 1; i++) {
+        const slen = this.suffixLength(i);
+        table[slen] = patternLength - 1 - i + slen;
+      }
+  
+      return table;
+    }
+  
+    suffixLength(pos) 
+    {
+        let len = 0;
+        for (let i = pos, j = this.pattern.length - 1; i >= 0 && this.pattern[i] == this.pattern[j]; i--, j--) 
+        {
+            len += 1;
+        }
+  
+        return len;
+    }
+}
+
+
 
 //inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt";
 
@@ -280,127 +311,130 @@ switch (mode)
         }
         break;
 
-        case "--hash":
-            start = performance.now();
-            let hashRes = searchSubstring(inputText, inputSubStr, EM); //4099 4327 101
-            end = performance.now();
-            time = (end - start).toFixed(3);
-            count = (hashRes[0]).length;
-            if(hashRes[0][0] === -1)
-            {
-                count = 0;
+    case "--hash":
+        start = performance.now();
+        let hashRes = searchSubstring(inputText, inputSubStr, EM); //4099 4327 101
+        end = performance.now();
+        time = (end - start).toFixed(3);
+        count = (hashRes[0]).length;
+        if(hashRes[0][0] === -1)
+        {
+            count = 0;
+        }
+        fs.appendFileSync(outFile, `Результат поиска обычных хэш за ${time} ms с ${hashRes[1]} коллизиями и ${count} вхождениями:\n`, err => {
+            if (err) {
+                throw err;
             }
-            fs.appendFileSync(outFile, `Результат поиска обычных хэш за ${time} ms с ${hashRes[1]} коллизиями и ${count} вхождениями:\n`, err => {
+        });
+
+        const check = bruteForce(inputText, inputSubStr);
+        if (check[0].length !== hashRes[0].length && ! (check[0] === hashRes[0][0]))
+        {
+            console.log("Количество вхождений не совпадает");
+        }
+        else
+        {
+            console.log("Количество вхождений совпадает");
+        }
+        for (let i = 0; i < hashRes[0].length; i++)
+        {
+            if (i === 10)
+            {
+                break;
+            }
+            fs.appendFileSync(outFile, hashRes[0][i] + "\n", err => {
+                if (err) 
+                {
+                    throw err;
+                }
+            });
+            //console.log(hashRes[0][i]);
+        }
+        break;
+
+    case "-r" || "--rabinKarp":
+        start = performance.now();
+        // let rabinKarpRes = rabinKarp(inputText, inpSubStr, powOfTwo, EM);
+        let rabinKarpRes = rabinKarp(inputText, inputSubStr, powOfTwo, EM);
+        end = performance.now();
+        time = (end - start).toFixed(3);
+        count = (rabinKarpRes[0]).length;
+        if (rabinKarpRes[0][0] === -1)
+        {
+            count = 0;
+        }
+        const check1 = bruteForce(inputText, inputSubStr);
+        if (check1[0].length !== rabinKarpRes[0].length)
+        {
+            console.log("Количество вхождений не совпадает");
+        }
+        else
+        {
+            console.log("Количество вхождений совпадает");
+        }
+
+        fs.appendFileSync(outFile, `Результат поиска Rabin-Karp за ${time} ms c ${rabinKarpRes[1]} коллизиями и ${count} вхождениями:\n`, err => {
+            if (err) {
+                throw err;
+            }
+        });
+        for (let i = 0; i < rabinKarpRes[0].length; i++)
+        {
+            if (i === 10)
+            {
+                break;
+            }
+            fs.appendFileSync(outFile, rabinKarpRes[0][i] + "\n", err => {
                 if (err) {
                     throw err;
                 }
             });
-
-            const check = bruteForce(inputText, inputSubStr);
-            if (check[0].length !== hashRes[0].length && ! (check[0] === hashRes[0][0]))
-            {
-                console.log("Количество вхождений не совпадает");
-            }
-            else
-            {
-                console.log("Количество вхождений совпадает");
-            }
-            for (let i = 0; i < hashRes[0].length; i++)
-            {
-                if (i === 10)
-                {
-                    break;
-                }
-                fs.appendFileSync(outFile, hashRes[0][i] + "\n", err => {
-                    if (err) 
-                    {
-                        throw err;
-                    }
-                });
-                //console.log(hashRes[0][i]);
-            }
-            break;
-
-        case "-r" || "--rabinKarp":
-            start = performance.now();
-            // let rabinKarpRes = rabinKarp(inputText, inpSubStr, powOfTwo, EM);
-            let rabinKarpRes = rabinKarp(inputText, inputSubStr, powOfTwo, EM);
-            end = performance.now();
-            time = (end - start).toFixed(3);
-            count = (rabinKarpRes[0]).length;
-            if (rabinKarpRes[0][0] === -1)
-            {
-                count = 0;
-            }
-            const check1 = bruteForce(inputText, inputSubStr);
-            if (check1[0].length !== rabinKarpRes[0].length)
-            {
-                console.log("Количество вхождений не совпадает");
-            }
-            else
-            {
-                console.log("Количество вхождений совпадает");
-            }
-
-            fs.appendFileSync(outFile, `Результат поиска Rabin-Karp за ${time} ms c ${rabinKarpRes[1]} коллизиями и ${count} вхождениями:\n`, err => {
-                if (err) {
-                    throw err;
-                }
-            });
-            for (let i = 0; i < rabinKarpRes[0].length; i++)
-            {
-                if (i === 10)
-                {
-                    break;
-                }
-                fs.appendFileSync(outFile, rabinKarpRes[0][i] + "\n", err => {
-                    if (err) {
-                        throw err;
-                    }
-                });
-            }
-            break;
+        }
+        break;
             
-            case '-bm' || '--boyerMoore':
-                start = performance.now();
-                let boyerMooreRes = boyerMoore(inputText, inputSubStr);
-                end = performance.now();
+        case '-bm' || '--boyerMoore':
+            const bm = new BoyerMoore(inputSubStr);
+            start = performance.now();
+            
+            let boyerMooreRes = bm.search(inputText)
+            end = performance.now();
 
-                time = (end - start).toFixed(3);
-                count = (boyerMooreRes).length;
+            time = (end - start).toFixed(3);
+            count = (boyerMooreRes).length;
 
-                if (boyerMooreRes[0] === -1)
-                {
-                    count = 0;
-                }
-                const check2 = bruteForce(inputText, inputSubStr);
-                if (check2[0].length !== boyerMooreRes.length)
-                {
-                    console.log("Количество вхождений не совпадает");
-                }
-                else
-                {
-                    console.log("Количество вхождений совпадает");
-                }
-
-                fs.appendFileSync(outFile, `Результат поиска boyerMoorHorspool за ${time} ms c ${count} вхождениями:\n`, err => {
-                    if (err) {
-                        throw err;
-                    }
-                });
-                for (let i = 0; i < boyerMooreRes.length; i++)
-                {
-                if (i === 10)
-                {
-                    break;
-                }
-                fs.appendFileSync(outFile, boyerMooreRes[i] + "\n", err => {
-                    if (err) {
-                        throw err;
-                    }
-                });
+            if (boyerMooreRes[0] === -1)
+            {
+                count = 0;
             }
-            break;
+            const check2 = bruteForce(inputText, inputSubStr);
+            if (check2[0].length !== boyerMooreRes.length)
+            {
+                console.log("Количество вхождений не совпадает");
+            }
+            else
+            {
+                console.log("Количество вхождений совпадает");
+            }
+
+            fs.appendFileSync(outFile, `Результат поиска boyerMoor за ${time} ms c ${count} вхождениями:\n`, err => {
+                if (err) {
+                    throw err;
+                }
+            });
+
+            for (let i = 0; i < boyerMooreRes.length; i++)
+            {
+            if (i === 10)
+            {
+                break;
+            }
+            fs.appendFileSync(outFile, boyerMooreRes[i] + "\n", err => {
+                if (err) {
+                    throw err;
+                }
+            });
+        }
+        break;
 
     default:
         break;
