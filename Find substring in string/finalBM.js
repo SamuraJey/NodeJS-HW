@@ -3,59 +3,58 @@ function boyerMooreSearch(text, pattern)
     let res = [];
     const strLength = text.length;
     const subStrLength = pattern.length;
-    if (subStrLength === 0 || strLength === 0 || subStrLength > strLength) 
+    if (subStrLength === 0 || strLength === 0 || subStrLength > strLength) // если подстрока пустая или текст пустой или подстрока длиннее текста
     {
-        res.push(-1);
+        res.push(-1); // невозможно найти подстроку
         return res;
     }
 
-    let charTable = makeCharTable(pattern);
-    let offsetTable = makeOffsetTable(pattern);
+    let badCharTable = makeBadCharTable(pattern); // таблица смещений для каждого символа
+    let goodSuffixTable = makeGoodSuffixTable(pattern); // таблица смещений для каждого суффикса
 
-    for (let i = subStrLength - 1, j; i < strLength;) 
+    for (let i = subStrLength - 1, j; i < strLength;) // пока не конец текста
     {
-        for (j = subStrLength - 1; pattern[j] == text[i]; i--, j--) 
+        for (j = subStrLength - 1; pattern[j] == text[i]; i--, j--) // пока символы совпадают
         {
-            if (j === 0) 
+            if (j === 0) // если вся подстрока совпала, то добавляем индекс вхождения в массив
             {
                 res.push(i);
                 break;
             }
         }
-        const charCode = text.charCodeAt(i);
-        i += Math.max(offsetTable[subStrLength - 1 - j], charTable[charCode]);
+        const charCode = text.charCodeAt(i); // получаем код символа
+        i += Math.max(goodSuffixTable[subStrLength - 1 - j], badCharTable[charCode]); // смещаемся на максимум из смещений по таблицам
     }
 
-    if (res.length === 0)
+    if (res.length === 0) // если ничего не нашли
     {
-        res.push(-1);
+        res.push(-1); // -1
         return res;
     }
     return res;
 }
 
-/**
- * Creates jump table, based on mismatched character information
- */
-function makeCharTable(pattern){
+
+function makeBadCharTable(pattern) // таблица смещений для каждого символа utf-16
+{
     let table = [];
-
+    const patternLength = pattern.length;
     // 65536 being the max value of char + 1
-    for (let i = 0; i < 65536; i++) 
+    for (let i = 0; i < 65536; i++) // заполняем таблицу максимальным значением
     {
-        table.push(pattern.length);
+        table.push(patternLength);
     }
 
-    for (let i = 0; i < pattern.length - 1; i++) {
-        const charCode = pattern.charCodeAt(i);
-        table[charCode] = pattern.length - 1 - i;
+    for (let i = 0; i < patternLength - 1; i++) // заполняем таблицу смещениями
+    {
+        const charCode = pattern.charCodeAt(i); // получаем код символа
+        table[charCode] = patternLength - i - 1; // смещение равно длине подстроки минус индекс символа
     }
-
     return table;
 }
 
 
-function makeOffsetTable(pattern) 
+function makeGoodSuffixTable(pattern) 
 {
     const patternLength = pattern.length;
     let table = new Array(patternLength);
