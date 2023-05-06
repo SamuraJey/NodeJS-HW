@@ -1,4 +1,4 @@
-function boyerMooreSearch(text, pattern)
+function boyerMoore(text, pattern)
 {
     let res = [];
     const strLength = text.length;
@@ -14,7 +14,7 @@ function boyerMooreSearch(text, pattern)
 
     for (let i = subStrLength - 1, j; i < strLength;) // пока не конец текста
     {
-        for (j = subStrLength - 1; pattern[j] == text[i]; i--, j--) // пока символы совпадают
+        for (j = subStrLength - 1; pattern[j] === text[i]; i--, j--) // пока символы совпадают
         {
             if (j === 0) // если вся подстрока совпала, то добавляем индекс вхождения в массив
             {
@@ -35,16 +35,10 @@ function boyerMooreSearch(text, pattern)
 }
 
 
-function makeBadCharTable(pattern) // таблица смещений для каждого символа utf-16
+function makeBadCharTable(pattern) // таблица смещений для каждого символа utf-8
 {
-    let table = [];
     const patternLength = pattern.length;
-    // 65536 being the max value of char + 1
-    for (let i = 0; i < 65536; i++) // заполняем таблицу максимальным значением
-    {
-        table.push(patternLength);
-    }
-
+    let table = new Array(32768).fill(patternLength); // создаем таблицу смещений, 32768 - максимальное значение кода символа utf-8
     for (let i = 0; i < patternLength - 1; i++) // заполняем таблицу смещениями
     {
         const charCode = pattern.charCodeAt(i); // получаем код символа
@@ -62,11 +56,11 @@ function makeGoodSuffixTable(pattern)
 
     for (let i = patternLength; i > 0; i--) 
     {
-        if (isPrefix(pattern, i)) 
+        if (pattern.startsWith(pattern.slice(i))) // если подстрока совпала с суффиксом
         {
             lastPrefixPosition = i;
         }
-        table[patternLength - i] = lastPrefixPosition - 1 + patternLength;
+        table[patternLength - i] = lastPrefixPosition - 1 + patternLength; // заполняем таблицу смещений
     }
 
     for (let i = 0; i < patternLength - 1; i++) 
@@ -77,23 +71,10 @@ function makeGoodSuffixTable(pattern)
     return table;
 }
 
-function isPrefix(pattern, pos) 
-{
-    for (let i = pos, j = 0; i < pattern.length; i++, j++) 
-    {
-        if (pattern[i] != pattern[j]) 
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
 function suffixLength(pattern, pos) 
 {
     let len = 0;
-
-    for (let i = pos, j = pattern.length - 1; i >= 0 && pattern[i] == pattern[j]; i--, j--) 
+    for (let i = pos, j = pattern.length - 1; i >= 0 && pattern[i] == pattern[j]; i--, j--) // пока символ с pos и конца совпдают то длина суфикса растет
     {
         len += 1;
     }
@@ -101,11 +82,12 @@ function suffixLength(pattern, pos)
 }
 
 
+
 const fs = require('fs');
 let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
 
-let inputSubStr = "Андрей Болконский";
+let inputSubStr = "";
 let strt = performance.now();
-console.log(boyerMooreSearch(inputText, inputSubStr))
+console.log(boyerMoore(inputText, inputSubStr))
 let end = performance.now();
 console.log(end - strt);

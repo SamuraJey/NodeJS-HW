@@ -1,23 +1,61 @@
-function buildDFA(pattern)
-{
+function buildDFA(pattern) {
+    const dfa = [];
+    const m = pattern.length;
+    const alphabet = Array.from(new Set(pattern)).sort();
+  
+    let state = 0;
+  
+    for (let i = 0; i < m; i++) {
+      const char = pattern[i];
+      const charIndex = alphabet.indexOf(char);
+  
+      if (!dfa[state]) {
+        dfa[state] = new Array(alphabet.length).fill(0);
+      }
+  
+      dfa[state][charIndex] = i + 1;
+  
+      if (charIndex !== -1) {
+        state = dfa[state][charIndex];
+      } else {
+        state = 0;
+      }
+    }
+  
+    return [dfa, alphabet];
+  }
+  
+  function buildDFA(pattern) {
     const dfa = [];
     const m = pattern.length;
     const alphabet = Array.from(new Set(pattern)).sort();
 
-    for (let i = 0; i < m; i++)
-    {
-        const char = pattern[i];
-        const state = new Array(alphabet.length).fill(0);
-        const charIndex = alphabet.indexOf(char);
-        state[charIndex] = i + 1;
-        dfa.push(state);
+    for (let i = 0; i <= m; i++) {
+        dfa[i] = {};
+        for (const char of alphabet) {
+            dfa[i][char] = 0;
+        }
     }
-    console.log(dfa);
+
+    for (let i = 0; i < m; i++) {
+        const char = pattern[i];
+        const nextState = i + 1;
+        dfa[i][char] = nextState;
+        const prefix = pattern.substring(0, i);
+        for (const char of alphabet) {
+            const suffix = prefix + char;
+            let j = Math.min(i + 1, m);
+            while (!suffix.endsWith(pattern.substring(0, j))) {
+                j--;
+            }
+            dfa[i][char] = j;
+        }
+    }
+
     return [dfa, alphabet];
 }
 
-function searchSubstringDFA(text, pattern)
-{
+function searchSubstringDFA(text, pattern) {
     const n = text.length;
     const m = pattern.length;
     const [dfa, alphabet] = buildDFA(pattern);
@@ -26,29 +64,30 @@ function searchSubstringDFA(text, pattern)
     let state = 0;
     let i = 0;
 
-    while (i < n)
-    {
+    while (i < n) {
         const char = text[i];
-        const charIndex = alphabet.indexOf(char);
 
-        if (charIndex !== -1)
-        {
-            state = dfa[state][charIndex];
-            if (state === m)
-            {
+        if (alphabet.includes(char) && dfa[state][char] !== undefined) {
+            state = dfa[state][char];
+            if (state === m) {
                 res.push(i - m + 1);
-                state = 0;
+                continue;
+                //state = dfa[state][char]; // продолжаем поиск без возврата к нулевому состоянию
             }
             i++;
-        }
-        else
-        {
-            state = 0;
+        } else {
+            state = dfa[state][pattern[0]] || 0;
             i++;
         }
     }
+
     return res;
 }
+
+
+
+
+  
 const fs = require('fs');
 
 let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');

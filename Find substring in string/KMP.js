@@ -63,16 +63,16 @@ function computeLPS(pattern) {
         }
       }
     }
-
+    console.log(lps);
     return lps;
   }
 
 const fs = require('fs');
 
-//let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
-inputText = "aranananas"
+let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
+//inputText = "aranananas"
 // inputText = inputText.toLowerCase();
-let inputSubStr = "ananas"
+let inputSubStr = "Андрей Болконский"
 // inputSubStr = inputSubStr.toLowerCase();
 
 console.time("kmp");
