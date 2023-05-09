@@ -8,6 +8,7 @@ const cellSize = 10;
 const rows = Math.floor(canvas.height / cellSize);
 const cols = Math.floor(canvas.width / cellSize);
 const cellStates = createEmptyGrid(rows, cols);
+
 let isRunning = false;
 
 // Функция создания пустой сетки
@@ -93,62 +94,91 @@ function countNeighbors(row, col) {
           }
         }
       }
-    
-    // Функция для запуска игры
-    function startGame() {
-        
+
+      const speedButtons = document.querySelectorAll('.speed-button');
+      let speed = 1;
+      
+      function setSpeed(newSpeed) {
+        speed = newSpeed;
+        updateSpeedButtons();
+      }
+      
+      function updateSpeedButtons() {
+        speedButtons.forEach(button => {
+          button.disabled = false;
+          if (button.dataset.speed === speed.toString()) {
+            button.disabled = true;
+          }
+        });
+      }
+      
+      function startGame() {
         isRunning = true;
-        
         startButton.disabled = true;
         pauseButton.disabled = false;
+        updateSpeedButtons(); // Обновляем состояние кнопок выбора скорости
         gameLoop();
-    }
-    
-    // Функция для паузы игры
-    let currentStep = 0; // Новая переменная для хранения текущего шага игры
-
-function pauseGame() {
-  isRunning = false;
-  pauseButton.textContent = 'Продолжить'; // Изменяем текст кнопки
-  pauseButton.removeEventListener('click', pauseGame); // Удаляем обработчик события
-  pauseButton.addEventListener('click', continueGame); // Добавляем новый обработчик события
-}
-
-function continueGame() {
-  isRunning = true;
-  pauseButton.textContent = 'Пауза'; // Изменяем текст кнопки
-  pauseButton.removeEventListener('click', continueGame); // Удаляем обработчик события
-  pauseButton.addEventListener('click', pauseGame); // Добавляем новый обработчик события
-  gameLoop(); // Запускаем игру с текущего шага
-}
-
-
-function gameLoop() {
-  if (!isRunning) {
-    return;
-  }
-
-  updateCells();
-  drawGrid();
-
-  currentStep++;
-  requestAnimationFrame(gameLoop);
-}
-
-function step() 
-{
-    updateCells();
-    drawGrid();
-}
-    
-    // Обработчики событий для кнопок "Начать" и "Пауза"
-    startButton.addEventListener('click', function() 
-    {
+      }
+      
+      function pauseGame() {
+        isRunning = false;
+        pauseButton.textContent = 'Продолжить';
+        pauseButton.removeEventListener('click', pauseGame);
+        pauseButton.addEventListener('click', continueGame);
+        updateSpeedButtons(); // Обновляем состояние кнопок выбора скорости
+      }
+      
+      function continueGame() {
+        isRunning = true;
+        pauseButton.textContent = 'Пауза';
+        pauseButton.removeEventListener('click', continueGame);
+        pauseButton.addEventListener('click', pauseGame);
+        updateSpeedButtons(); // Обновляем состояние кнопок выбора скорости
+        gameLoop(); // Добавляем вызов функции gameLoop()
+      }
+      
+      let lastFrameTime = performance.now();
+      
+      function gameLoop(currentTime) {
+        if (!isRunning) {
+          return;
+        }
+      
+        const timeSinceLastFrame = currentTime - lastFrameTime;
+        const framesPerSecond = 60; // Количество кадров в секунду
+        const frameDuration = 1000 / framesPerSecond;
+      
+        if (timeSinceLastFrame >= frameDuration / speed) 
+        {
+          lastFrameTime = currentTime;
+          updateCells();
+          drawGrid();
+          currentTime++;
+        }
+      
+        requestAnimationFrame(gameLoop);
+      }
+      
+      function step() 
+      {
+        updateCells();
+        drawGrid();
+      }
+      
+      // Обработчики событий для кнопок "Начать" и "Пауза"
+      startButton.addEventListener('click', function() {
         randomizeCells(); // Добавляем вызов новой функции
         startGame();
       });
-    pauseButton.addEventListener('click', pauseGame);
-    const stepButton = document.getElementById('stepButton');
-
-    stepButton.addEventListener('click', step);
-    
+      pauseButton.addEventListener('click', pauseGame);
+      const stepButton = document.getElementById('stepButton');
+      stepButton.addEventListener('click', step);
+      
+      speedButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          setSpeed(parseFloat(button.dataset.speed));
+        });
+      });
+      
+      
+      updateSpeedButtons(); // Обновляем состояние кнопок выбора скорости при загрузке страницы
