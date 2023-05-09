@@ -2,7 +2,7 @@ const fs = require('fs');
 let [mode, inputFile, inpSubStrFile, outFile] = process.argv.slice(2);
 // console.log(mode, inputFile, outFile, inpSubStr);
 
-const allowedModes = ['-b', '-r', '--brute-force', '--hash','--rabin-karp', '-h', '--help', '-bm', '-kmp'];
+const allowedModes = ['-b', '-r', '--brute-force', '--hash','--rabin-karp', '-h', '--help', '-bm', '-d'];
 
 const EM = 16411;
 // const EM = Math.pow(10, 9) + 7;
@@ -228,6 +228,74 @@ class BoyerMoore
     }
 }
 
+function makeDFA (str) 
+{
+    let alphabet = new Set(str.split(''));
+    let table = [];
+    let substring = "";
+    for (let i = 0; i <= str.length; i++)
+    {
+        const row = {};
+        symloop: for (let sym of alphabet)
+        {
+            let sub = substring + sym;
+            const L = sub.length;
+            for (let k = 0; k < L; k++)
+            {
+                if (sub === str.slice(0, sub.length))
+                {
+                    row[sym] = sub.length;
+                    continue symloop;
+                }
+                sub = sub.slice(1);
+            }
+            row[sym] = 0;
+        }
+        substring += str[i];
+        table.push(row);
+    }
+    return table;
+}
+
+function searchWithDFA(str, substring, dfa=[]) 
+{
+    let res = [];
+    if (dfa.length === 0) 
+    {
+        dfa = makeDFA(substring);
+    }
+    if (str.length < substring.length) 
+    {
+        // Подстрока не найдена
+        return [-1];
+    }
+    let state = 0;
+    for (let i = 0; i < str.length; i++) 
+    {
+        const sym = str[i];
+        if (dfa[state][sym]) 
+        {
+            state = dfa[state][sym];
+            // console.log("state first if " + state);
+        } 
+        else 
+        {
+            state = 0;
+            // console.log("state second if " + state);
+        }
+        if (state === substring.length) {
+            // Найдено совпадение
+            res.push(i - substring.length + 1);
+        }
+    }
+    if (res.length > 0)
+    {
+        return res;
+    }
+    // Подстрока не найдена
+    return [-1];
+}
+
 
 
 //inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt";
@@ -435,6 +503,48 @@ switch (mode)
             });
         }
         break;
+        case '-d':
+            start = performance.now();
+            let dfaRes = searchWithDFA(inputText, inputSubStr);
+            end = performance.now();
+
+            time = (end - start).toFixed(3);
+            count = (dfaRes).length;
+
+            if (dfaRes[0] === -1)
+            {
+                count = 0;
+            }
+            const check3 = bruteForce(inputText, inputSubStr);
+            if (check3[0].length !== dfaRes.length)
+            {
+                console.log("Количество вхождений не совпадает");
+            }
+            else
+            {
+                console.log("Количество вхождений совпадает");
+            }
+
+            fs.appendFileSync(outFile, `Результат поиска DFA за ${time} ms c ${count} вхождениями:\n`, err => {
+                if (err) {
+                    throw err;
+                }
+            });
+
+            for (let i = 0; i < dfaRes.length; i++)
+            {
+            if (i === 10)
+            {
+                break;
+            }
+            fs.appendFileSync(outFile, dfaRes[i] + "\n", err => {
+                if (err) {
+                    throw err;
+                }
+            });
+        }
+        break;
+
 
     default:
         break;

@@ -21,23 +21,23 @@ function kmp(string, subString)
             res.push(strIndex - subStrIndex);
             subStrIndex = lps[subStrIndex - 1];
         }
-        else if (strIndex < strLen && subString[subStrIndex] !== string[strIndex])
+        else if (strIndex < strLen && subString[subStrIndex] !== string[strIndex]) // если символы не совпадают
         {
-            if (subStrIndex !== 0)
+            if (subStrIndex !== 0) // если не в начале подстроки, то сдвигаемся по lps
             {
-                subStrIndex = lps[subStrIndex - 1];
+                subStrIndex = lps[subStrIndex - 1]; // сдвигаемся по lps
             }
             else
             {
-                strIndex++;
+                strIndex++; // иначе двигаемся дальше по тексту
             }
         }
     }
 
     if (res.length === 0)
     {
-        res.push(-1);
-        return res;
+        //res.push(-1);
+        return [-1];
     }
     return res;
 }

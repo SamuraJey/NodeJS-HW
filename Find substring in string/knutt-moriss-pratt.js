@@ -23,8 +23,8 @@ function findSubstring(str, substr)
     }
     if (res.length === 0)
     {
-        res.push(-1);
-        return res;
+        //res.push(-1);
+        return [-1];
     }
     return res;
 }
@@ -34,17 +34,17 @@ function prefixFunction(substr)
     const subStrLen = substr.length;
     let prefix = new Array(subStrLen).fill(0);
     let j = 0;
-    for (let i = 1; i < subStrLen; i++)
+    for (let i = 1; i < subStrLen; i++) // i = 1 потому что первый символ всегда 0
     {
-        while (j > 0 && substr[i] !== substr[j])
+        while (j > 0 && substr[i] !== substr[j]) // пока не совпадают символы
         {
-            j = prefix[j - 1];
+            j = prefix[j - 1]; // сдвигаемся по таблице префиксов
         }
-        if (substr[i] === substr[j])
+        if (substr[i] === substr[j]) // если символы совпали
         {
-            j++;
+            j++; // то увеличиваем длину префикса
         }
-        prefix[i] = j;
+        prefix[i] = j; // записываем длину префикса в таблицу
     }
     return prefix;
 }
@@ -54,7 +54,7 @@ const fs = require('fs');
 
 let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
 
-let inputSubStr = "aaaananananananaaaaaa"
+let inputSubStr = "Андрей Болконский"
 
 let str = "hello world";
 let substr = "l";

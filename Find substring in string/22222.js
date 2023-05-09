@@ -59,7 +59,7 @@ const fs = require('fs');
 
 let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
 
-let inputSubStr = "banana"
+let inputSubStr = "Андрей Болконский"
 
 console.time("1")
 let res = searchSubstringDFA(inputText, inputSubStr);

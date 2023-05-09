@@ -1,4 +1,4 @@
-function make_dfa (str, substr) 
+function makeDFA (str) 
 {
     let alphabet = new Set(str.split(''));
     let table = [];
@@ -27,12 +27,12 @@ function make_dfa (str, substr)
     return table;
 }
 
-function search_substring(str, substring, dfa=[]) 
+function searchWithDFA(str, substring, dfa=[]) 
 {
     let res = [];
     if (dfa.length === 0) 
     {
-        dfa = make_dfa(substring);
+        dfa = makeDFA(substring);
     }
     if (str.length < substring.length) 
     {
@@ -46,15 +46,16 @@ function search_substring(str, substring, dfa=[])
         if (dfa[state][sym]) 
         {
             state = dfa[state][sym];
+            console.log("state first if " + state);
         } 
         else 
         {
             state = 0;
+            console.log("state second if " + state);
         }
         if (state === substring.length) {
             // Найдено совпадение
             res.push(i - substring.length + 1);
-            //return i - substring.length + 1;
         }
     }
     if (res.length > 0)
@@ -65,10 +66,23 @@ function search_substring(str, substring, dfa=[])
     return [-1];
 }
 
-const str = "ananasas";
-const substring = "as";
+const str = "ahaasananas";
+const substring = "ananas";
 console.time("dfa");
-const dfa = make_dfa(substring);
-const index = search_substring(str, substring, dfa);
+const dfa = makeDFA(substring);
+const index = searchWithDFA(str, substring, dfa);
 console.timeEnd("dfa");
 console.log(index); // 10
+
+// const fs = require('fs');
+
+// let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
+// //inputText = "anananasasaananas"
+// let inputSubStr = "Андрей Болконский"
+
+// console.time("dfa");
+// const dfa1 = make_dfa(inputSubStr);
+// const index1 = search_substring(inputText, inputSubStr, dfa1);
+// console.timeEnd("dfa");
+// console.log(dfa1);
+// console.log(index1); // 10
