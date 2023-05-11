@@ -7,7 +7,7 @@ const ctx = canvas.getContext('2d');
 const cellSize = 10;
 const rows = Math.floor(canvas.height / cellSize);
 const cols = Math.floor(canvas.width / cellSize);
-const cellStates = createEmptyGrid(rows, cols);
+let cellStates = createEmptyGrid(rows, cols);
 drawGrid();
 
 let isRunning = false;
@@ -206,7 +206,27 @@ function step()
     drawGrid();
 }
 
-function handleCanvasClick(event)
+function handleCanvasMouseDown(event)
+{
+    // Вычисляем координаты клика мыши на canvas
+    const x = event.offsetX;
+    const y = event.offsetY;
+
+    // Вычисляем координаты клетки, в которую был произведен клик мыши
+    const col = Math.floor(x / cellSize);
+    const row = Math.floor(y / cellSize);
+
+    // Меняем состояние клетки на противоположное
+    cellStates[row][col] = !cellStates[row][col];
+    
+    // Перерисовываем поле
+    drawGrid();
+
+    // Добавляем обработчик события mousemove
+    canvas.addEventListener('mousemove', handleCanvasMouseMove);
+}
+
+function handleCanvasMouseMove(event)
 {
     // Вычисляем координаты клика мыши на canvas
     const x = event.offsetX;
@@ -223,22 +243,18 @@ function handleCanvasClick(event)
     drawGrid();
 }
 
+function handleCanvasMouseUp(event)
+{
+    // Удаляем обработчик события mousemove
+    canvas.removeEventListener('mousemove', handleCanvasMouseMove);
+}
+
+
+
 // Обработчики событий для кнопок "Начать" и "Пауза"
 startButton.addEventListener('click', function()
 {
     startGame();
-    // if (startingCells.includes(true))
-    // {
-    //     cellStates = startingCells;
-    //     startGame();
-    //     console.log("cellStates.includes(true)");
-    // }
-    // else
-    // {
-    //     randomizeCells();
-    //     startGame();
-    //     console.log("randomizeCells");
-    // }
 });
 
 pauseButton.addEventListener('click', pauseGame);
@@ -252,15 +268,222 @@ speedButtons.forEach(button =>
         setSpeed(parseFloat(button.dataset.speed));
     });
 });
-canvas.addEventListener('mousedown', handleCanvasClick);
+// Обработчик событий для canvas
+canvas.addEventListener('mousedown', handleCanvasMouseDown);
+canvas.addEventListener('mouseup', handleCanvasMouseUp);
 
 const randomButton = document.querySelector('#randomButton');
 
 // Обработчик события для кнопки "Случайная карта"
 randomButton.addEventListener('click', function() {
     randomizeCells();
-    // Копируем состояние клеток в начальный массив
-    // startingCellStates = JSON.parse(JSON.stringify(cellStates));
 });
+
+function createStaticMap() 
+{
+    const centerX = Math.floor(cols / 2);
+    const startY = Math.floor(rows / 2) - 5;
+    const endY = Math.floor(rows / 2) + 4;
+    for (let row = startY; row <= endY; row++) {
+        for (let col = 0; col < cols; col++) {
+            cellStates[row][col] = (col === centerX);
+        }
+    }
+    // Перерисовываем поле
+    drawGrid();
+}
+
+const staticButton = document.querySelector('#staticButton');
+
+// Обработчик события для кнопки "Статическая карта"
+staticButton.addEventListener('click', function() {
+    createStaticMap();
+});
+
+const clearButton = document.querySelector('#clearButton');
+
+// Обработчик события для кнопки "Статическая карта"
+clearButton.addEventListener('click', function() {
+    cellStates = createEmptyGrid(rows, cols);
+    // Перерисовываем поле
+    drawGrid();
+});
+
+function createGlider()
+{
+    const startX = Math.floor(cols / 2) - 1;
+    const startY = Math.floor(rows / 2) - 1;
+    cellStates[startY][startX + 1] = true;
+    cellStates[startY + 1][startX + 2] = true;
+    cellStates[startY + 2][startX] = true;
+    cellStates[startY + 2][startX + 1] = true;
+    cellStates[startY + 2][startX + 2] = true;
+    // Перерисовываем поле
+    drawGrid();
+}
+
+const gliderButton = document.querySelector('#gliderButton');
+
+// Обработчик события для кнопки "gliderButton"
+gliderButton.addEventListener('click', function() {
+    createGlider();
+});
+
+
+function createPulsar()
+{
+    const startX = Math.floor(cols / 2) - 2;
+    const startY = Math.floor(rows / 2) - 2;
+    cellStates[startY][startX + 2] = true;
+    cellStates[startY][startX + 3] = true;
+    cellStates[startY][startX + 4] = true;
+    cellStates[startY][startX + 8] = true;
+    cellStates[startY][startX + 9] = true;
+    cellStates[startY][startX + 10] = true;
+    cellStates[startY + 5][startX + 2] = true;
+    cellStates[startY + 5][startX + 3] = true;
+    cellStates[startY + 5][startX + 4] = true;
+    cellStates[startY + 5][startX + 8] = true;
+    cellStates[startY + 5][startX + 9] = true;
+    cellStates[startY + 5][startX + 10] = true;
+    cellStates[startY + 7][startX + 2] = true;
+    cellStates[startY + 7][startX + 3] = true;
+    cellStates[startY + 7][startX + 4] = true;
+    cellStates[startY + 7][startX + 8] = true;
+    cellStates[startY + 7][startX + 9] = true;
+    cellStates[startY + 7][startX + 10] = true;
+    cellStates[startY + 12][startX + 2] = true;
+    cellStates[startY + 12][startX + 3] = true;
+    cellStates[startY + 12][startX + 4] = true;
+    cellStates[startY + 12][startX + 8] = true;
+    cellStates[startY + 12][startX + 9] = true;
+    cellStates[startY + 12][startX + 10] = true;
+    cellStates[startY + 2][startX] = true;
+    cellStates[startY + 3][startX] = true;
+    cellStates[startY + 4][startX] = true;
+    cellStates[startY + 8][startX] = true;
+    cellStates[startY + 9][startX] = true;
+    cellStates[startY + 10][startX] = true;
+    cellStates[startY + 2][startX + 5] = true;
+    cellStates[startY + 3][startX + 5] = true;
+    cellStates[startY + 4][startX + 5] = true;
+    cellStates[startY + 8][startX + 5] = true;
+    cellStates[startY + 9][startX + 5] = true;
+    cellStates[startY + 10][startX + 5] = true;
+    cellStates[startY + 2][startX + 7] = true;
+    cellStates[startY + 3][startX + 7] = true;
+    cellStates[startY + 4][startX + 7] = true;
+    cellStates[startY + 8][startX + 7] = true;
+    cellStates[startY + 9][startX + 7] = true;
+    cellStates[startY + 10][startX + 7] = true;
+    cellStates[startY + 2][startX + 12] = true;
+    cellStates[startY + 3][startX + 12] = true;
+    cellStates[startY + 4][startX + 12] = true;
+    cellStates[startY + 8][startX + 12] = true;
+    cellStates[startY + 9][startX + 12] = true;
+    cellStates[startY + 10][startX + 12] = true;
+    // Перерисовываем поле
+    drawGrid();
+}
+
+const pulsarButton = document.querySelector('#pulsarButton');
+
+// Обработчик события для кнопки "pulsarButton"
+pulsarButton.addEventListener('click', function() {
+    createPulsar();
+});
+
+function createCanoe()
+{
+    const startX = Math.floor(cols / 2) - 2;
+    const startY = Math.floor(rows / 2) - 2;
+    cellStates[startY][startX + 1] = true;
+    cellStates[startY][startX + 2] = true;
+    cellStates[startY + 1][startX] = true;
+    cellStates[startY + 1][startX + 3] = true;
+    cellStates[startY + 2][startX] = true;
+    cellStates[startY + 2][startX + 3] = true;
+    cellStates[startY + 3][startX + 1] = true;
+    // Перерисовываем поле
+    drawGrid();
+}
+
+const canoeButton = document.querySelector('#canoeButton');
+
+// Обработчик события для кнопки "canoeButton"
+canoeButton.addEventListener('click', function() {
+    createCanoe();
+});
+
+
+function createBlinker()
+{
+    const startX = Math.floor(cols / 2) - 1;
+    const startY = Math.floor(rows / 2) - 1;
+    cellStates[startY][startX] = true;
+    cellStates[startY][startX + 1] = true;
+    cellStates[startY][startX + 2] = true;
+    // Перерисовываем поле
+    drawGrid();
+}
+
+const blinkerButton = document.querySelector('#blinkerButton');
+
+// Обработчик события для кнопки "blinkerButton"
+blinkerButton.addEventListener('click', function() {
+    createBlinker();
+});
+
+
+function createExploder()
+{
+    // координаты точек взрыва
+    // 'Exploder': [[-1, -1], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 1], [2, 0]]
+    let exloder = [[-1, -1], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 1], [2, 0]];
+
+    // координаты центра поля
+    const startX = Math.floor(cols / 2);
+    const startY = Math.floor(rows / 2);
+
+    // заполняем поле
+    for (let i = 0; i < exloder.length; i++) 
+    {
+        cellStates[startY + exloder[i][0]][startX + exloder[i][1]] = true;
+    }
+    drawGrid();
+}
+
+const exploderButton = document.querySelector('#exploderButton');
+
+// Обработчик события для кнопки "exploderButton"
+exploderButton.addEventListener('click', function() {
+    createExploder();
+});
+
+function createGliderGun()
+{
+    let gliderggun =  [[0, -18], [0, -17], [1, -18], [1, -17], [0, -8], [1, -8], [2, -8], [-1, -7],
+    [-2, -6], [-2, -5], [3, -7], [4, -6], [4, -5], [1, -4], [-1, -3], [0, -2], [1, -2],
+    [2, -2], [1, -1], [3, -3], [-2, 2], [-1, 2], [0, 2], [-2, 3], [-1, 3], [0, 3], [-3, 4],
+    [1, 4], [-4, 6], [-3, 6], [1, 6], [2, 6], [-2, 16], [-1, 16], [-2, 17], [-1, 17]];
+
+    const startX = Math.floor(cols / 2) - 20;
+    const startY = Math.floor(rows / 2) - 10;
+
+    for (let i = 0; i < gliderggun.length; i++) {
+        cellStates[startY + gliderggun[i][0]][startX + gliderggun[i][1]] = true;
+    }
+
+    // Перерисовываем поле
+    drawGrid();
+}
+
+const gliderGunButton = document.querySelector('#gliderGunButton');
+
+// Обработчик события для кнопки "gliderGunButton"
+gliderGunButton.addEventListener('click', function() {
+    createGliderGun();
+});
+
 
 updateSpeedButtons(); // Обновляем состояние кнопок выбора скорости при загрузке страницы
