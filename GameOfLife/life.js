@@ -336,10 +336,10 @@ clearButton.addEventListener('click', function()
 {
     // Сбрасываем состояние клеток и обновляем счетчики
     cellStates = createEmptyGrid(rows, cols);
-    drawGrid();
+    //drawGrid();
     generationCount = 0;
     liveCellCount = 0;
-
+    isRunning = false;
     // Перерисовываем поле
     drawGrid();
 });
