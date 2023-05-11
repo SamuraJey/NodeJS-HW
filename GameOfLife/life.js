@@ -1,21 +1,28 @@
 // Получаем ссылку на элементы DOM
-const canvas = document.getElementById('gameCanvas');
-const startButton = document.getElementById('startButton');
-const pauseButton = document.getElementById('pauseButton');
+const canvas = document.getElementById('gameCanvas'); // Связываем холст с элементом на странице
+const startButton = document.getElementById('startButton'); // Связываем кнопку "Старт" с элементом на странице
+const pauseButton = document.getElementById('pauseButton'); // Связываем кнопку "Пауза" с элементом на странице
 
-const ctx = canvas.getContext('2d');
-const cellSize = 10;
-const rows = Math.floor(canvas.height / cellSize);
+const ctx = canvas.getContext('2d'); // Получаем контекст рисования
+/*
+Метод getContext('2d') вызывается на элементе <canvas> 
+и возвращает объект CanvasRenderingContext2D, 
+который представляет контекст рисования для данного элемента. 
+Контекст рисования содержит набор методов и свойств, 
+позволяющих рисовать 2D-графику на холсте.
+*/
+const cellSize = 10; // Размер клетки в пикселях, можно изменять
+const rows = Math.floor(canvas.height / cellSize); // Количество строк, округляем в меньшую сторону чтобы не выйти за границы холста
 const cols = Math.floor(canvas.width / cellSize);
-let cellStates = createEmptyGrid(rows, cols);
+let cellStates = createEmptyGrid(rows, cols); // Создаем пустую сетку
 let generationCount = 0; // Счетчик поколений
 let liveCellCount = 0; // Счетчик живых клеток
-drawGrid();
+drawGrid(); // Отрисовываем сетку на холсте
 
-let isRunning = false;
+let isRunning = false; // Флаг, показывающий, запущена ли игра
 
 // Функция создания пустой сетки
-function createEmptyGrid(rows, cols)
+function createEmptyGrid(rows, cols) // Принимает количество строк и столбцов и пустую сетку
 {
     const grid = new Array(rows);
     for (let i = 0; i < rows; i++)
@@ -25,22 +32,22 @@ function createEmptyGrid(rows, cols)
     return grid;
 }
 
-// Функция отрисовки сетки на канвасе
+// Функция отрисовки сетки на холсте
 function drawGrid()
 {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let row = 0; row < rows; row++)
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем холст
+    for (let row = 0; row < rows; row++) // Проходим по всем строкам
     {
-        for (let col = 0; col < cols; col++)
+        for (let col = 0; col < cols; col++) // и столбцам
         {
-            ctx.beginPath();
-            ctx.rect(col * cellSize, row * cellSize, cellSize, cellSize);
-            if (cellStates[row][col])
+            ctx.beginPath(); // Начинаем новый путь рисования
+            ctx.rect(col * cellSize, row * cellSize, cellSize, cellSize); // Делаем красивую сетку
+            if (cellStates[row][col]) // Если клетка живая - закрашиваем ее
             {
                 ctx.fillStyle = 'black';
                 ctx.fill();
             }
-            else
+            else // Если клетка мертвая - оставляем только границы
             {
                 ctx.strokeStyle = '#aaa';
                 ctx.stroke();
@@ -58,17 +65,17 @@ function drawGrid()
 // Функция обновления состояния клеток
 function updateCells()
 {
-    const newCellStates = createEmptyGrid(rows, cols);
+    const newCellStates = createEmptyGrid(rows, cols); // Создаем новую сетку
 
     for (let row = 0; row < rows; row++)
     {
         for (let col = 0; col < cols; col++)
         {
-            const neighbors = countNeighbors(row, col);
+            const neighbors = countNeighbors(row, col); // Подсчитываем количество соседей
 
-            if (cellStates[row][col])
+            if (cellStates[row][col]) // Проверяем состояние клетки
             {
-                // Клетка жива
+                // Клетка жива если у нее 2 или 3 соседа
                 if (neighbors === 2 || neighbors === 3)
                 {
                     newCellStates[row][col] = true; // Клетка остается живой
@@ -77,7 +84,7 @@ function updateCells()
             else
             {
                 // Клетка мертва
-                if (neighbors === 3)
+                if (neighbors === 3) // Если у мертвой клетки 3 соседа, она оживает
                 {
                     newCellStates[row][col] = true; // Клетка оживает
                 }
@@ -104,7 +111,7 @@ function updateCells()
     const liveCellCountElement = document.querySelector('#liveCellCount');
     liveCellCountElement.textContent = `Живые клетки: ${liveCellCount}`;
 
-    cellStates.splice(0, cellStates.length, ...newCellStates);
+    cellStates.splice(0, cellStates.length, ...newCellStates); // Обновляем состояние клеток
 }
 
 // Функция подсчета количества соседей для клетки
@@ -123,9 +130,9 @@ function countNeighbors(row, col)
         [1, 1]
     ];
 
-    for (const [dx, dy] of neighbors)
+    for (const [dx, dy] of neighbors) // Проходим по всем соседям
     {
-        let newRow = row + dy;
+        let newRow = row + dy; // Вычисляем координаты соседа
         let newCol = col + dx;
 
         // Обработка зацикливания клеток при достижении границ поля
@@ -134,20 +141,20 @@ function countNeighbors(row, col)
         if (newCol < 0) newCol = cols - 1;
         if (newCol >= cols) newCol = 0;
 
-        if (cellStates[newRow][newCol])
+        if (cellStates[newRow][newCol]) // Если сосед живой - увеличиваем счетчик
         {
             count++;
         }
     }
 
-    return count;
+    return count; // Возвращаем количество живых соседей
 }
 
-function randomizeCells()
+function randomizeCells() // Функция случайного заполнения поля
 {
-    for (let row = 0; row < rows; row++)
+    for (let row = 0; row < rows; row++) // Проходим по всем строкам
     {
-        for (let col = 0; col < cols; col++)
+        for (let col = 0; col < cols; col++) // и столбцам
         {
             cellStates[row][col] = Math.random() < 0.5; // Живая клетка с вероятностью 0.5
         }
@@ -155,46 +162,46 @@ function randomizeCells()
     drawGrid();
 }
 
-const speedButtons = document.querySelectorAll('.speed-button');
-let speed = 1;
+const speedButtons = document.querySelectorAll('.speed-button'); // Кнопки выбора скорости, связываем с переменной
+let speed = 1; // Начальная Скорость игры
 
-function setSpeed(newSpeed)
+function setSpeed(newSpeed) // Функция установки скорости
 {
     speed = newSpeed;
-    updateSpeedButtons();
+    updateSpeedButtons(); // Обновляем состояние кнопок выбора скорости
 }
 
-function updateSpeedButtons()
+function updateSpeedButtons() // Функция обновления состояния кнопок выбора скорости
 {
     speedButtons.forEach(button =>
     {
         button.disabled = false;
-        if (button.dataset.speed === speed.toString())
+        if (button.dataset.speed === speed.toString()) // Если скорость выбрана - блокируем кнопку
         {
             button.disabled = true;
         }
     });
 }
 
-function startGame()
+function startGame() // Функция запуска игры
 {
-    isRunning = true;
+    isRunning = true; // Устанавливаем флаг запуска игры
     startButton.disabled = true;
     pauseButton.disabled = false;
     updateSpeedButtons(); // Обновляем состояние кнопок выбора скорости
-    gameLoop();
+    gameLoop(); // Добавляем вызов функции основного цикла игры
 }
 
-function pauseGame()
+function pauseGame() // Функция паузы игры
 {
-    isRunning = false;
+    isRunning = false; // Сбрасываем флаг запуска игры
     pauseButton.textContent = 'Продолжить';
     pauseButton.removeEventListener('click', pauseGame);
     pauseButton.addEventListener('click', continueGame);
     updateSpeedButtons(); // Обновляем состояние кнопок выбора скорости
 }
 
-function continueGame()
+function continueGame() // Функция продолжения игры
 {
     isRunning = true;
     pauseButton.textContent = 'Пауза';
@@ -204,20 +211,20 @@ function continueGame()
     gameLoop(); // Добавляем вызов функции gameLoop()
 }
 
-let lastFrameTime = performance.now();
+let lastFrameTime = performance.now(); // Время последнего кадра
 
-function gameLoop(currentTime)
+function gameLoop(currentTime) // Функция основного цикла игры
 {
-    if (!isRunning)
+    if (!isRunning) // Если игра не запущена - выходим из функции
     {
         return;
     }
 
-    const timeSinceLastFrame = currentTime - lastFrameTime;
+    const timeSinceLastFrame = currentTime - lastFrameTime; // Вычисляем время с последнего кадра
     const framesPerSecond = 30; // Количество кадров в секунду
-    const frameDuration = 1000 / framesPerSecond;
+    const frameDuration = 1000 / framesPerSecond; // Длительность кадра в миллисекундах
 
-    if (timeSinceLastFrame >= frameDuration / speed)
+    if (timeSinceLastFrame >= frameDuration / speed) // Если прошло достаточно времени для отрисовки следующего кадра, отрисовываем кадр
     {
         lastFrameTime = currentTime;
         updateCells();
@@ -227,7 +234,7 @@ function gameLoop(currentTime)
     requestAnimationFrame(gameLoop);
 }
 
-function step()
+function step() // Функция шага игры
 {
     updateCells();
     drawGrid();
@@ -242,15 +249,10 @@ function handleCanvasMouseDown(event)
     // Вычисляем координаты клетки, в которую был произведен клик мыши
     const col = Math.floor(x / cellSize);
     const row = Math.floor(y / cellSize);
+    cellStates[row][col] = !cellStates[row][col]; // Меняем состояние клетки на противоположное
 
-    // Меняем состояние клетки на противоположное
-    cellStates[row][col] = !cellStates[row][col];
-
-    // Перерисовываем поле
-    drawGrid();
-
-    // Добавляем обработчик события mousemove
-    canvas.addEventListener('mousemove', handleCanvasMouseMove);
+    drawGrid(); // Перерисовываем поле
+    canvas.addEventListener('mousemove', handleCanvasMouseMove); // Добавляем обработчик события mousemove
 }
 
 function handleCanvasMouseMove(event)
@@ -263,29 +265,25 @@ function handleCanvasMouseMove(event)
     const col = Math.floor(x / cellSize);
     const row = Math.floor(y / cellSize);
 
-    // Меняем состояние клетки на противоположное
-    cellStates[row][col] = !cellStates[row][col];
-
-    // Перерисовываем поле
+    cellStates[row][col] = !cellStates[row][col]; // Меняем состояние клетки на противоположное
     drawGrid();
 }
 
 function handleCanvasMouseUp(event)
 {
-    // Удаляем обработчик события mousemove
-    canvas.removeEventListener('mousemove', handleCanvasMouseMove);
+    canvas.removeEventListener('mousemove', handleCanvasMouseMove); // Удаляем обработчик события mousemove
 }
 
-// Обработчики событий для кнопок "Начать" и "Пауза"
-startButton.addEventListener('click', function()
+startButton.addEventListener('click', function() // Обработчик событий для кнопки "Старт"
 {
     startGame();
 });
 
-pauseButton.addEventListener('click', pauseGame);
-const stepButton = document.getElementById('stepButton');
-stepButton.addEventListener('click', step);
+pauseButton.addEventListener('click', pauseGame); // Обработчик событий для кнопки "Пауза"
+const stepButton = document.getElementById('stepButton'); // Обработчик событий для кнопки "Шаг"
+stepButton.addEventListener('click', step); // Обработчик событий для кнопки "Шаг"
 
+// Обработчик событий для кнопок выбора скорости
 speedButtons.forEach(button =>
 {
     button.addEventListener('click', () =>
@@ -293,11 +291,12 @@ speedButtons.forEach(button =>
         setSpeed(parseFloat(button.dataset.speed));
     });
 });
+
 // Обработчик событий для canvas
 canvas.addEventListener('mousedown', handleCanvasMouseDown);
 canvas.addEventListener('mouseup', handleCanvasMouseUp);
 
-const randomButton = document.querySelector('#randomButton');
+const randomButton = document.querySelector('#randomButton'); // Обработчик событий для кнопки "Случайная карта"
 
 // Обработчик события для кнопки "Случайная карта"
 randomButton.addEventListener('click', function()
@@ -305,7 +304,7 @@ randomButton.addEventListener('click', function()
     randomizeCells();
 });
 
-function createStaticMap()
+function createStaticMap() // Функция создания какой то кракозябры
 {
     const centerX = Math.floor(cols / 2);
     const startY = Math.floor(rows / 2) - 5;
@@ -317,26 +316,24 @@ function createStaticMap()
             cellStates[row][col] = (col === centerX);
         }
     }
-    // Перерисовываем поле
     drawGrid();
 }
 
 const staticButton = document.querySelector('#staticButton');
 
-// Обработчик события для кнопки "Статическая карта"
+// Обработчик события для кнопки "Кракозябра"
 staticButton.addEventListener('click', function()
 {
     createStaticMap();
 });
 
-const clearButton = document.querySelector('#clearButton');
+const clearButton = document.querySelector('#clearButton'); // Обработчик события для кнопки "Clear"
 
 // Обработчик события для кнопки "Clear"
 clearButton.addEventListener('click', function()
 {
     // Сбрасываем состояние клеток и обновляем счетчики
     cellStates = createEmptyGrid(rows, cols);
-    //drawGrid();
     generationCount = 0;
     liveCellCount = 0;
     isRunning = false;
@@ -344,7 +341,7 @@ clearButton.addEventListener('click', function()
     drawGrid();
 });
 
-function createGlider()
+function createGlider() // Функция для создания рисунка планера
 {
     const startX = Math.floor(cols / 2) - 1;
     const startY = Math.floor(rows / 2) - 1;
@@ -365,7 +362,7 @@ gliderButton.addEventListener('click', function()
     createGlider();
 });
 
-function createPulsar()
+function createPulsar() // Функция для создания рисунка пульсара
 {
     const pulsarArr = [
         [0, 2],
@@ -435,7 +432,7 @@ pulsarButton.addEventListener('click', function()
     createPulsar();
 });
 
-function createCanoe()
+function createCanoe() // Функция для создания рисунка каноэ
 {
     const startX = Math.floor(cols / 2) - 2;
     const startY = Math.floor(rows / 2) - 2;
@@ -458,7 +455,7 @@ canoeButton.addEventListener('click', function()
     createCanoe();
 });
 
-function createBlinker()
+function createBlinker() // Функция для создания рисунка мигалки
 {
     const startX = Math.floor(cols / 2) - 1;
     const startY = Math.floor(rows / 2) - 1;
@@ -477,7 +474,7 @@ blinkerButton.addEventListener('click', function()
     createBlinker();
 });
 
-function createExploder()
+function createExploder() // Функция для создания рисунка взрывателя
 {
     // координаты точек взрыва
     // 'Exploder': [[-1, -1], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 1], [2, 0]]
@@ -511,7 +508,7 @@ exploderButton.addEventListener('click', function()
     createExploder();
 });
 
-function createGliderGun()
+function createGliderGun() // Функция для создания рисунка пушки планеров
 {
     let gliderggun = [
         [0, -18],
