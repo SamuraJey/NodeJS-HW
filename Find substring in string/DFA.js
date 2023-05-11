@@ -1,4 +1,4 @@
-function makeDFA (str) 
+function make_dfa (str, substr) 
 {
     let alphabet = new Set(str.split(''));
     let table = [];
@@ -27,12 +27,12 @@ function makeDFA (str)
     return table;
 }
 
-function searchWithDFA(str, substring, dfa=[]) 
+function search_substring(str, substring, dfa=[]) 
 {
     let res = [];
     if (dfa.length === 0) 
     {
-        dfa = makeDFA(substring);
+        dfa = make_dfa(substring);
     }
     if (str.length < substring.length) 
     {
@@ -46,16 +46,15 @@ function searchWithDFA(str, substring, dfa=[])
         if (dfa[state][sym]) 
         {
             state = dfa[state][sym];
-            console.log("state first if " + state);
         } 
         else 
         {
             state = 0;
-            console.log("state second if " + state);
         }
         if (state === substring.length) {
             // Найдено совпадение
             res.push(i - substring.length + 1);
+            //return i - substring.length + 1;
         }
     }
     if (res.length > 0)
@@ -66,23 +65,15 @@ function searchWithDFA(str, substring, dfa=[])
     return [-1];
 }
 
-const str = "ahaasananas";
-const substring = "ananas";
+
+const fs = require('fs');
+let inputText = "";
+let inputSubStr = "";
+inputText = fs.readFileSync("C:/Users/samuraj/Documents/VisualStudioCodeProjects/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
+inputSubStr = "Андрей Болконский"
+
 console.time("dfa");
-const dfa = makeDFA(substring);
-const index = searchWithDFA(str, substring, dfa);
+const dfa = make_dfa(inputSubStr);
+const index = search_substring(inputText, inputSubStr, dfa);
 console.timeEnd("dfa");
 console.log(index); // 10
-
-// const fs = require('fs');
-
-// let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
-// //inputText = "anananasasaananas"
-// let inputSubStr = "Андрей Болконский"
-
-// console.time("dfa");
-// const dfa1 = make_dfa(inputSubStr);
-// const index1 = search_substring(inputText, inputSubStr, dfa1);
-// console.timeEnd("dfa");
-// console.log(dfa1);
-// console.log(index1); // 10
