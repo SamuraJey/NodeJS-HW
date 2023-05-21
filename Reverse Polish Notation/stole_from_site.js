@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function isOperator(c)
 {
     return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
@@ -28,7 +30,7 @@ function rightPriority(c)
 }
 
 
-let expr = "735/+1-85--";
+
 
 function postfixToInfix5(expression)
 {
@@ -55,9 +57,12 @@ function postfixToInfix5(expression)
     };
     const printExpression = function(node)
     {
-        if (typeof(node) == 'string') return node;
-        let left = printExpression(node.left),
-            right = printExpression(node.right);
+        if (typeof(node) == 'string')
+        {
+            return node;
+        }
+        let left = printExpression(node.left);
+        let right = printExpression(node.right);
         if (typeof(node.left) != 'string' && (priority(node.left.op) < priority(node.op) || (node.left.op == node.op && node.op == '^')))
             {
                 left = '(' + left + ')';
@@ -70,7 +75,8 @@ function postfixToInfix5(expression)
     };
     const stack = [];
     let token;
-    while ((token = nextToken(expression)) != '')
+    let counter = 1;
+    while ((token = nextToken(expression)) != '') // 7+3/5-1-(8-5)
     {
         if (isOperator(token))
         {
@@ -86,11 +92,19 @@ function postfixToInfix5(expression)
         {
             stack.push(token);
         }
+        const stackCopyStr = JSON.stringify(stack);
+    // Запись состояния стека в файл
+    fs.appendFileSync('stack_state.json', `State ${counter}: ${stackCopyStr} \n`, err => {
+        if (err) throw err;
+        //console.log('Состояние стека было успешно записано в файл!');
+    });
+    counter++;
     }
     if (stack.length != 1) return 'Invalid expression.';
     return printExpression(stack.pop()).replace(/\s/g, '');
 }
 
+let expr = "735/+1-85--";
 console.log(postfixToInfix5(expr));
 
 
