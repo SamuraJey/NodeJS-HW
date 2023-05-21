@@ -1,66 +1,68 @@
 const fs = require('fs');
 
-function infixToPostfix2(expression)
+function infixToPostfix2(expression) // Функция перевода инфиксной записи в постфиксную
 {
-    const precedence = {
+    const precedence = { // Приоритеты операторов
         "+": 1,
         "-": 1,
         "*": 2,
         "/": 2,
         "^": 3,
     };
-    const stack = [];
-    let postfix = "";
-    let operandType = null;
+    const stack = []; // Стек операторов
+    let postfix = ""; // Постфиксная запись, сюда записываем результат
+    let operandType = null; // Тип операнда для проверки на однотипность
+    let counter = 1; // Счетчик для записи состояния постфикса в файл
 
-    if (expression.length === 0)
+    if (expression.length === 0) // Проверка на пустую строку
         throw new Error("Invalid expression: empty string");
 
-    if (expression.length === 1)
+    if (expression.length === 1) // Проверка на один символ
         throw new Error(`Invalid expression [ ${expression} ]: expression must contain at least two operands and one operator`);
-    let counter = 1;
-    for (let i = 0; i < expression.length; i++)
+    
+    for (let i = 0; i < expression.length; i++) // Проход по всему выражению
     {
-        const token = expression[i];
-        if (!isNaN(token))
-        { // Check if token is a number
-            if (operandType === null)
+        const token = expression[i]; // Текущий символ
+        if (!isNaN(token)) // Проверка что текущий символ число
+        {
+            if (operandType === null) // Проверка что тип операнда не задан
             {
-                operandType = "number";
+                operandType = "number"; // Задаем тип операнда
             }
-            else if (operandType !== "number")
+            else if (operandType !== "number") // Проверка что тип операнда совпадает с предыдущим
             {
                 throw new Error(`Invalid expression [ ${expression} ] : operands must be of the same type`);
             }
-            if (i < expression.length - 1 && !isNaN(expression[i + 1]))
+            if (i < expression.length - 1 && !isNaN(expression[i + 1])) // Проверка что следующий символ число
             {
                 throw new Error(`Invalid expression [ ${expression} ] : multiple operands`);
             }
-            postfix += token;
+            postfix += token; // Добавляем число в постфиксную запись если прошло все проверки
         }
-        else if (/[a-zA-Z]/.test(token))
-        { // Check if token is a letter
-            if (operandType === null)
+        else if (/[a-zA-Z]/.test(token)) // Проверка что текущий символ буква
+        {
+            if (operandType === null) // Проверка что тип операнда не задан
             {
                 operandType = "letter";
             }
-            else if (operandType !== "letter")
+            else if (operandType !== "letter") // Проверка что тип операнда совпадает с предыдущим
             {
+                
                 throw new Error(`Invalid expression [ ${expression} ] : operands must be of the same type`);
             }
-            if (i < expression.length - 1 && /[a-zA-Z]/.test(expression[i + 1]))
+            if (i < expression.length - 1 && /[a-zA-Z]/.test(expression[i + 1])) // Проверка что следующий символ буква
             {
                 throw new Error(`Invalid expression [ ${expression} ] : multiple operands`);
             }
-            postfix += token;
+            postfix += token; // Добавляем букву в постфиксную запись если прошло все проверки
         }
-        else if (token in precedence)
+        else if (token in precedence) // Проверка что текущий символ оператор
         {
-            if (i === 0 || i === expression.length - 1)
+            if (i === 0 || i === expression.length - 1) // Проверка что оператор не первый или последний символ
             {
                 throw new Error(`Invalid expression [ ${expression} ] : missing operands`);
             }
-            if (expression[i - 1] in precedence && expression[i] in precedence)
+            if (expression[i - 1] in precedence && expression[i] in precedence) // Проверка что перед и после оператора не оператор
             {
                 throw new Error(`Invalid expression [ ${expression} ] : multiple operators`);
             }
@@ -68,37 +70,37 @@ function infixToPostfix2(expression)
                 stack.length > 0 &&
                 stack[stack.length - 1] !== "(" &&
                 precedence[token] <= precedence[stack[stack.length - 1]]
-            )
+            ) // Проверка что стек не пустой и последний символ в стеке не "(" и приоритет текущего оператора меньше или равен приоритету последнего символа в стеке
             {
-                postfix += stack.pop();
+                postfix += stack.pop(); // Добавляем последний символ в стеке в постфиксную запись
             }
-            stack.push(token);
+            stack.push(token); // Добавляем текущий оператор в стек
         }
-        else if (token === "(")
+        else if (token === "(") // Проверка что текущий символ "("
         {
-            if (i < expression.length - 1 && expression[i + 1] === ")")
+            if (i < expression.length - 1 && expression[i + 1] === ")") // Проверка если следующий символ ")" то выражение в скобках пустое это ошибка
             {
                 throw new Error(`Invalid expression [ ${expression} ] : empty brackets`);
             }
-            stack.push(token);
+            stack.push(token); // Добавляем "(" в стек если прошло все проверки
         }
-        else if (token === ")")
+        else if (token === ")") // Проверка что текущий символ ")"
         {
-            if (stack.length === 0 || stack[stack.length - 1] === "(")
+            if (stack.length === 0 || stack[stack.length - 1] === "(") // Проверка что стек не пустой и последний символ в стеке не "("
             {
                 throw new Error(`Invalid expression [ ${expression} ] : empty brackets or missing operands`);
             }
-            while (stack.length > 0 && stack[stack.length - 1] !== "(")
+            while (stack.length > 0 && stack[stack.length - 1] !== "(") // Цикл пока стек не пустой и последний символ в стеке не "("
             {
-                postfix += stack.pop();
+                postfix += stack.pop(); // Добавляем последний символ в стеке в постфиксную запись
             }
-            if (stack.length === 0)
+            if (stack.length === 0) // Проверка что стек не пустой, если пустой то ошибочное выражение
             {
                 throw new Error(`Invalid expression [ ${expression} ] : unbalanced brackets`);
             }
-            stack.pop(); // pop "("
+            stack.pop(); // Удаляем "(" из стека
         }
-        else
+        else // Если текущий символ не число, не буква, не оператор, не "(" и не ")" то это ошибка
         {
             throw new Error(`Invalid token: ${token}`);
         }
@@ -112,23 +114,23 @@ function infixToPostfix2(expression)
         counter++;
     }
 
-    if (stack.length === 1 && stack[0] === "(")
+    if (stack.length === 1 && stack[0] === "(") // Проверка что стек не пустой и последний символ в стеке не "("
     {
         throw new Error(`Invalid expression [ ${expression} ]: missing operands`);
     }
 
-    while (stack.length > 0)
+    while (stack.length > 0) // Цикл пока стек не пустой
     {
-        const token = stack.pop();
-        if (token === "(")
+        const token = stack.pop(); // Берём последний символ в стеке
+        if (token === "(") // Если последний символ в стеке "(" то это ошибка
         {
             throw new Error(`Invalid expression [ ${expression} ] : unbalanced brackets`);
         }
-        postfix += token;
+        postfix += token; // Добавляем последний символ в стеке в постфиксную запись
         fs.appendFileSync('stack_state_inf_to_pref.json', `State ${counter}: ${postfix} \n`, err =>
         {
             if (err) throw err;
-        });
+        }); // Запись состояния постфикса в файл
     }
 
     return postfix;
@@ -416,7 +418,7 @@ function main()
                 }
                 else
                 {
-                    throw new Error(`Invalid expression [ ${  inputExpr } ] : operands must be of the same type`);
+                    throw new Error(`Invalid expression [ ${  inputExpr } ]`);
                 }
             }
             catch (error)
