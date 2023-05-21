@@ -27,6 +27,79 @@ function rightPriority(c)
     return 0;
 }
 
+
+let expr = "735/+1-85--";
+
+function postfixToInfix5(expression)
+{
+
+    let spacedExpr = "";
+    for (let i = 0; i < expr.length; i++)
+    {
+        spacedExpr += expr[i];
+        if (i < expr.length - 1)
+        {
+            spacedExpr += " ";
+        }
+    }
+    expression = spacedExpr;
+
+    let i = 0;
+    const nextToken = function()
+    {
+        while (i < expression.length && expression[i] == ' ') i++;
+        if (i == expression.length) return '';
+        let token = '';
+        while (i < expression.length && expression[i] != ' ') token += expression[i++];
+        return token;
+    };
+    const printExpression = function(node)
+    {
+        if (typeof(node) == 'string') return node;
+        let left = printExpression(node.left),
+            right = printExpression(node.right);
+        if (typeof(node.left) != 'string' && (priority(node.left.op) < priority(node.op) || (node.left.op == node.op && node.op == '^')))
+            {
+                left = '(' + left + ')';
+            }
+        if (typeof(node.right) != 'string' && (rightPriority(node.right.op) < rightPriority(node.op) || (node.left.op == node.op && (node.op == '-' || node.op == '/'))))
+            {
+                right = '(' + right + ')';
+            }
+        return left + ' ' + node.op + ' ' + right;
+    };
+    const stack = [];
+    let token;
+    while ((token = nextToken(expression)) != '')
+    {
+        if (isOperator(token))
+        {
+            if (stack.length < 2) return 'Invalid expression.';
+            stack.push(
+            {
+                op: token,
+                right: stack.pop(),
+                left: stack.pop()
+            });
+        }
+        else
+        {
+            stack.push(token);
+        }
+    }
+    if (stack.length != 1) return 'Invalid expression.';
+    return printExpression(stack.pop()).replace(/\s/g, '');
+}
+
+console.log(postfixToInfix5(expr));
+
+
+// var result = postfixToInfix("7 3 5 / + 1 - 8 5 - -");
+// console.log(result);
+
+// console.log(infixToPostfix("7+3/5-1-(8-5)"));
+
+
 // function infixToPostfix(expr) {
 //     var i = 0,
 //         nextToken = function () {
@@ -68,126 +141,47 @@ function rightPriority(c)
 //     return s;
 // }
 
-function postfixToInfix(expr)
-{
-    var i = 0,
-        nextToken = function()
-        {
-            while (i < expr.length && expr[i] == ' ') i++;
-            if (i == expr.length) return '';
-            var b = '';
-            while (i < expr.length && expr[i] != ' ') b += expr[i++];
-            return b;
-        },
-        print = function(x)
-        {
-            if (typeof(x) == 'string') return x;
-            var l = print(x.l),
-                r = print(x.r);
-            if (typeof(x.l) != 'string' && (priority(x.l.op) < priority(x.op) || (x.l.op == x.op && x.op == '^')))
-                l = '(' + l + ')';
-            if (typeof(x.r) != 'string' && (rightPriority(x.r.op) < rightPriority(x.op) || (x.l.op == x.op && (x.op == '-' || x.op == '/'))))
-                r = '(' + r + ')';
-            return l + ' ' + x.op + ' ' + r;
-        };
-    var S = [],
-        tok;
-    while ((tok = nextToken(expr)) != '')
-    {
-        if (isOperator(tok))
-        {
-            if (S.length < 2) return 'Invalid expression.';
-            S.push(
-            {
-                op: tok,
-                r: S.pop(),
-                l: S.pop()
-            });
-        }
-        else
-        {
-            S.push(tok);
-        }
-    }
-    if (S.length != 1) return 'Invalid expression.';
-    return print(S.pop());
-}
-
-let expr = "735/+1-85--";
-
-let spacedExpr = "";
-for (let i = 0; i < expr.length; i++)
-{
-    spacedExpr += expr[i];
-    if (i < expr.length - 1)
-    {
-        spacedExpr += " ";
-    }
-}
-console.log(spacedExpr);
-
-console.log(postfixToInfix(expr));
-
-// var result = postfixToInfix("7 3 5 / + 1 - 8 5 - -");
-// console.log(result);
-
-// console.log(infixToPostfix("7+3/5-1-(8-5)"));
-
-function postfixToInfix5(expression)
-{
-
-    let spacedExpr = "";
-    for (let i = 0; i < expr.length; i++)
-    {
-        spacedExpr += expr[i];
-        if (i < expr.length - 1)
-        {
-            spacedExpr += " ";
-        }
-    }
-    expression = spacedExpr;
-
-    let i = 0;
-    const nextToken = function()
-    {
-        while (i < expression.length && expression[i] == ' ') i++;
-        if (i == expression.length) return '';
-        let token = '';
-        while (i < expression.length && expression[i] != ' ') token += expression[i++];
-        return token;
-    };
-    const printExpression = function(node)
-    {
-        if (typeof(node) == 'string') return node;
-        let left = printExpression(node.left),
-            right = printExpression(node.right);
-        if (typeof(node.left) != 'string' && (priority(node.left.op) < priority(node.op) || (node.left.op == node.op && node.op == '^')))
-            left = '(' + left + ')';
-        if (typeof(node.right) != 'string' && (rightPriority(node.right.op) < rightPriority(node.op) || (node.left.op == node.op && (node.op == '-' || node.op == '/'))))
-            right = '(' + right + ')';
-        return left + ' ' + node.op + ' ' + right;
-    };
-    const stack = [];
-    let token;
-    while ((token = nextToken(expression)) != '')
-    {
-        if (isOperator(token))
-        {
-            if (stack.length < 2) return 'Invalid expression.';
-            stack.push(
-            {
-                op: token,
-                right: stack.pop(),
-                left: stack.pop()
-            });
-        }
-        else
-        {
-            stack.push(token);
-        }
-    }
-    if (stack.length != 1) return 'Invalid expression.';
-    return printExpression(stack.pop()).replace(/\s/g, '');
-}
-
-console.log(postfixToInfix5(expr));
+// function postfixToInfix(expr)
+// {
+//     var i = 0,
+//         nextToken = function()
+//         {
+//             while (i < expr.length && expr[i] == ' ') i++;
+//             if (i == expr.length) return '';
+//             var b = '';
+//             while (i < expr.length && expr[i] != ' ') b += expr[i++];
+//             return b;
+//         },
+//         print = function(x)
+//         {
+//             if (typeof(x) == 'string') return x;
+//             var l = print(x.l),
+//                 r = print(x.r);
+//             if (typeof(x.l) != 'string' && (priority(x.l.op) < priority(x.op) || (x.l.op == x.op && x.op == '^')))
+//                 l = '(' + l + ')';
+//             if (typeof(x.r) != 'string' && (rightPriority(x.r.op) < rightPriority(x.op) || (x.l.op == x.op && (x.op == '-' || x.op == '/'))))
+//                 r = '(' + r + ')';
+//             return l + ' ' + x.op + ' ' + r;
+//         };
+//     var S = [],
+//         tok;
+//     while ((tok = nextToken(expr)) != '')
+//     {
+//         if (isOperator(tok))
+//         {
+//             if (S.length < 2) return 'Invalid expression.';
+//             S.push(
+//             {
+//                 op: tok,
+//                 r: S.pop(),
+//                 l: S.pop()
+//             });
+//         }
+//         else
+//         {
+//             S.push(tok);
+//         }
+//     }
+//     if (S.length != 1) return 'Invalid expression.';
+//     return print(S.pop());
+// }
