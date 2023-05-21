@@ -190,7 +190,7 @@ console.log(infixToPostfix2(expr));
 
 
 function generateRandomExpression() {
-    const maxDepth = 2; // Maximum recursion depth
+    const maxDepth = 3; // Maximum recursion depth
     const maxOperands = 2; // Maximum number of operands per sub-expression
     const operators = ["+", "-", "*", "/",];
     const operands = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
@@ -215,8 +215,11 @@ function generateRandomExpression() {
                 if (useParentheses) {
                     subExpression += `(${operand})`;
                 }
-                else {
+                else if (!isNaN(operand)) {
                     subExpression += operand;
+                }
+                else {
+                    subExpression += operand; // operand is asub-expression, so enclose it in parentheses
                 }
                 if (i < numOperands - 1) {
                     const nextOperator = operators[Math.floor(Math.random() * operators.length)];
@@ -236,6 +239,13 @@ function generateRandomExpression() {
             if (subExpression[0] === "(" && subExpression.slice(-1) === ")") {
                 subExpression = subExpression.slice(1, -1);
             }
+            if (subExpression.length === 1) {
+                // we should not have a single operand so we need to add another operand and operator
+                const nextOperator = operators[Math.floor(Math.random() * operators.length)];
+                const nextOperand = operands[Math.floor(Math.random() * operands.length)];
+                subExpression += nextOperator + nextOperand;
+            }
+
 
             return subExpression;
         }
@@ -265,7 +275,8 @@ for (let i = 0; i < 10; i++) {
     const infixExpression = postfixToInfix(postfixExpression);
     const infixResult = evaluateInfixExpression(infixExpression);
     const postfixResult = evaluatePostfixExpression(postfixExpression);
-    console.log(`Expression1: ${expression}\nExpression2: ${postfixExpression}\nExpression3: ${infixExpression}\n`);
+    console.log(`Expression1: ${expression}\nExpression2: ${postfixExpression}\nExpression3: ${infixExpression}`);
+    console.log(`Result infix: ${infixResult} Result postfix: ${postfixResult}\n`);
     if (expression !== infixExpression || infixResult !== postfixResult) {
         if (infixResult !== postfixResult) {
             console.log(`Error in calc: ${infixResult} !== ${postfixResult}`);
