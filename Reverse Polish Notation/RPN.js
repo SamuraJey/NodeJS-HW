@@ -1,9 +1,7 @@
 const fs = require('fs');
 
-const [mode, inputFilename, outputFilename] = process.argv.slice(2);
-
 function infixToPostfix2(expression)
-{ // cool but not working with a++b it works?
+{
     const precedence = {
         "+": 1,
         "-": 1,
@@ -380,9 +378,71 @@ function testCases(num)
         }
     }
 }
-testCases(10);
 
+function main()
+{
+    const [mode, inputExpr, input3] = process.argv.slice(2);
+    const allowedModes = ['-t', '-e', '-d'];
+    // if (!allowedModes.includes(mode))
+    // {
+    //     console.log(`Invalid mode: ${mode}`);
+    //     console.log(`Allowed modes: ${allowedModes}`);
+    //     process.exit(1);
+    // }
+
+    switch (mode)
+    {
+        case '-t':
+            testCases(inputExpr);
+            break;
+        case '-e':
+            try
+            {
+                const postfixExpression = infixToPostfix2(inputExpr);
+                const postfixResult = evaluatePostfixExpression(postfixExpression);
+                const infixExpression = postfixToInfix(postfixExpression);
+                const infixResult = evaluateInfixExpression(infixExpression);
+                console.log(`Postfix expression: ${postfixExpression}`);
+                console.log(`Postfix result: ${postfixResult}`);
+                console.log(`Restored Infix expression: ${infixExpression}`);
+                console.log(`Infix result: ${infixResult}`);
+            }
+            catch (error)
+            {
+                console.log(error.message);
+            }
+            break;
+        case '-d':
+            try
+            {
+                const infixExpression = postfixToInfix(inputExpr);
+                const infixResult = evaluateInfixExpression(infixExpression);
+                const postfixExpression = infixToPostfix2(infixExpression);
+                const postfixResult = evaluatePostfixExpression(postfixExpression);
+                console.log(`Infix expression: ${infixExpression}`);
+                console.log(`Infix result: ${infixResult}`);
+                console.log(`Restored Postfix expression: ${postfixExpression}`);
+                console.log(`Posrfix result: ${postfixResult}`);
+
+            }
+            catch (error)
+            {
+                console.log(error.message);
+            }
+            break;
+        default:
+            console.log(`Invalid mode: ${mode}`);
+            console.log(`Allowed modes: ${allowedModes}`);
+            process.exit(1);
+    }
+}
+main();
+
+/*
+for test
+// testCases(10);
 // console.log(evaluateInfixExpression("7+3/5-1-(8-5)"));
 // console.log(evaluatePostfixExpression("735/+1-85--"));
 // console.log(postfixToInfix("735/+1-85--"));
 // 735/+1-85-- 735/+1-85--
+*/

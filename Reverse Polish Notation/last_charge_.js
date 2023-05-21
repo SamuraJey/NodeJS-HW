@@ -91,4 +91,4 @@ function postfixToInfix(expression)
 }
 
 let expr = "735/+1-85--";
-console.log(postfixToInfix5(expr));
+console.log(postfixToInfix(expr));

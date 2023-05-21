@@ -1,12 +1,8 @@
 const fs = require('fs');
 
-function isOperator(c)
-{
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
-}
-
-// function leftAssoc(c) {
-//     return c != '^';
+// function isOperator(c)
+// {
+//     return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
 // }
 
 function priority(c)
@@ -35,6 +31,32 @@ function rightPriority(c)
 function postfixToInfix5(expression)
 {
 
+    const operators = new Set(['+', '-', '*', '/', '^']);
+    // const priorityMap = new Map([
+    //     ['^', 3],   
+    //     ['*', 2],    
+    //     ['/', 2],
+    //     ['+', 1],
+    //     ['-', 1]
+
+    //  ]);
+
+     const priorityMap = new Map([
+        ['-', 1],
+        ['+', 1],
+        ['/', 2],
+        ['*', 2],
+        ['^', 3]
+     ]);
+     
+     const rightPriorityMap = new Map([
+        ['+', 1],      
+        ['-', 2],
+        ['*', 3],
+        ['/', 4],
+        ['^', 5]
+     ]);
+
     let spacedExpr = "";
     for (let i = 0; i < expr.length; i++)
     {
@@ -55,7 +77,7 @@ function postfixToInfix5(expression)
         while (i < expression.length && expression[i] != ' ') token += expression[i++];
         return token;
     };
-    const printExpression = function(node)
+    const printExpression = function(node) // Получаем дерево
     {
         if (typeof(node) == 'string')
         {
@@ -78,7 +100,8 @@ function postfixToInfix5(expression)
     let counter = 1;
     while ((token = nextToken(expression)) != '') // 7+3/5-1-(8-5)
     {
-        if (isOperator(token))
+        //if (isOperator(token))
+        if (operators.has(token))
         {
             if (stack.length < 2) return 'Invalid expression.';
             stack.push(

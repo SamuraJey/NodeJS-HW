@@ -75,7 +75,7 @@ function infixToPostfix(expression) {
   return postfix;
 }
 
-function evaluateExpression(expression) {
+function evaluatePostfixExpression(expression) {
 
   const stack = [];
   const operators = {
@@ -102,7 +102,7 @@ function evaluateExpression(expression) {
 const expression = "1+1*2^5-1"; // 12+4*3+
 const postfixExpression = infixToPostfix(expression);
 console.log(postfixExpression); // Output: "12+4*3+"
-const result = evaluateExpression(postfixExpression);
+const result = evaluatePostfixExpression(postfixExpression);
 console.log(result);
 
 function postfixToInfix(expression) {
