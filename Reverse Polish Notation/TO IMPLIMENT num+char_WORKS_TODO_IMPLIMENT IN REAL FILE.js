@@ -212,7 +212,7 @@ function generateRandomExpression() {
             for (let i = 0; i < numOperands; i++) {
                 const operand = generateSubExpression(depth + 1, operator);
                 const useParentheses = previousOperator !== null && hasLowerPrecedence(operator, previousOperator);
-                if (useParentheses) {
+                if (useParentheses && operand.length > 1) {
                     subExpression += `(${operand})`;
                 }
                 else if (!isNaN(operand)) {
@@ -268,22 +268,25 @@ function generateRandomExpression() {
 }
 
 
-
-for (let i = 0; i < 10; i++) {
-    const expression = generateRandomExpression();
-    const postfixExpression = infixToPostfix2(expression);
-    const infixExpression = postfixToInfix(postfixExpression);
-    const infixResult = evaluateInfixExpression(infixExpression);
-    const postfixResult = evaluatePostfixExpression(postfixExpression);
-    console.log(`Expression1: ${expression}\nExpression2: ${postfixExpression}\nExpression3: ${infixExpression}`);
-    console.log(`Result infix: ${infixResult} Result postfix: ${postfixResult}\n`);
-    if (expression !== infixExpression || infixResult !== postfixResult) {
-        if (infixResult !== postfixResult) {
-            console.log(`Error in calc: ${infixResult} !== ${postfixResult}`);
+function testCases(num) {
+    for (let i = 0; i < num; i++) {
+        const expression = generateRandomExpression();
+        const postfixExpression = infixToPostfix2(expression);
+        const infixExpression = postfixToInfix(postfixExpression);
+        const infixResult = evaluateInfixExpression(infixExpression);
+        const postfixResult = evaluatePostfixExpression(postfixExpression);
+        console.log(`Test case ${i + 1}:`);
+        console.log(`Expression1: ${expression}\nExpression2: ${postfixExpression}\nExpression3: ${infixExpression}`);
+        console.log(`Result infix: ${infixResult} Result postfix: ${postfixResult}\n`);
+        if (expression !== infixExpression && infixResult !== postfixResult) {
+            if (infixResult !== postfixResult) {
+                console.log(`Error in calc: ${infixResult} !== ${postfixResult}`);
+            }
+            console.log(`Error: ${expression} !== ${infixExpression}`);
         }
-        console.log(`Error: ${expression} !== ${infixExpression}`);
     }
 }
+testCases(10);
 
 
 
