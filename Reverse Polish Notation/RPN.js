@@ -381,31 +381,43 @@ function testCases(num)
 
 function main()
 {
-    const [mode, inputExpr, input3] = process.argv.slice(2);
+    let [mode, inputExpr, input3] = process.argv.slice(2);
     const allowedModes = ['-t', '-e', '-d'];
-    // if (!allowedModes.includes(mode))
-    // {
-    //     console.log(`Invalid mode: ${mode}`);
-    //     console.log(`Allowed modes: ${allowedModes}`);
-    //     process.exit(1);
-    // }
 
     switch (mode)
     {
+        case undefined:
+            console.log("No mode specified");
+            console.log(`Allowed modes: ${allowedModes}`);
+            process.exit(1);
         case '-t':
             testCases(inputExpr);
             break;
         case '-e':
             try
             {
-                const postfixExpression = infixToPostfix2(inputExpr);
-                const postfixResult = evaluatePostfixExpression(postfixExpression);
-                const infixExpression = postfixToInfix(postfixExpression);
-                const infixResult = evaluateInfixExpression(infixExpression);
-                console.log(`Postfix expression: ${postfixExpression}`);
-                console.log(`Postfix result: ${postfixResult}`);
-                console.log(`Restored Infix expression: ${infixExpression}`);
-                console.log(`Infix result: ${infixResult}`);
+                if (/[a-zA-Z]/.test(inputExpr) && !(/[0-9]/.test(inputExpr)))
+                {
+                    const postfixExpression = infixToPostfix2(inputExpr);
+                    const infixExpression = postfixToInfix(postfixExpression);
+                    console.log(`Postfix expression: ${postfixExpression}`);
+                    console.log(`Restored Infix expression: ${infixExpression}`);
+                }
+                else if (/[0-9]/.test(inputExpr) && !(/[a-zA-Z]/.test(inputExpr)))
+                {
+                    const postfixExpression = infixToPostfix2(inputExpr);
+                    const postfixResult = evaluatePostfixExpression(postfixExpression);
+                    const infixExpression = postfixToInfix(postfixExpression);
+                    const infixResult = evaluateInfixExpression(infixExpression);
+                    console.log(`Postfix expression: ${postfixExpression}`);
+                    console.log(`Postfix result: ${postfixResult}`);
+                    console.log(`Restored Infix expression: ${infixExpression}`);
+                    console.log(`Infix result: ${infixResult}`);
+                }
+                else
+                {
+                    throw new Error(`Invalid expression [ ${  inputExpr } ] : operands must be of the same type`);
+                }
             }
             catch (error)
             {
@@ -415,15 +427,28 @@ function main()
         case '-d':
             try
             {
-                const infixExpression = postfixToInfix(inputExpr);
-                const infixResult = evaluateInfixExpression(infixExpression);
-                const postfixExpression = infixToPostfix2(infixExpression);
-                const postfixResult = evaluatePostfixExpression(postfixExpression);
-                console.log(`Infix expression: ${infixExpression}`);
-                console.log(`Infix result: ${infixResult}`);
-                console.log(`Restored Postfix expression: ${postfixExpression}`);
-                console.log(`Posrfix result: ${postfixResult}`);
-
+                if (/[a-zA-Z]/.test(inputExpr) && !(/[0-9]/.test(inputExpr)))
+                {
+                    const infixExpression = postfixToInfix(inputExpr);
+                    const postfixExpression = infixToPostfix2(infixExpression);
+                    console.log(`Infix expression: ${infixExpression}`);
+                    console.log(`Restored Postfix expression: ${postfixExpression}`);
+                }
+                else if (/[0-9]/.test(inputExpr) && !(/[a-zA-Z]/.test(inputExpr)))
+                {
+                    const infixExpression = postfixToInfix(inputExpr);
+                    const infixResult = evaluateInfixExpression(infixExpression);
+                    const postfixExpression = infixToPostfix2(infixExpression);
+                    const postfixResult = evaluatePostfixExpression(postfixExpression);
+                    console.log(`Infix expression: ${infixExpression}`);
+                    console.log(`Infix result: ${infixResult}`);
+                    console.log(`Restored Postfix expression: ${postfixExpression}`);
+                    console.log(`Posrfix result: ${postfixResult}`);
+                }
+                else
+                {
+                    throw new Error(`Invalid expression [ ${  inputExpr } ] : operands must be of the same type`);
+                }
             }
             catch (error)
             {
