@@ -8,7 +8,6 @@ function leftAssoc(c)
     return c != '^';
 }
 
-
 function priority(c)
 {
     if (c == '^') return 3;
@@ -62,11 +61,23 @@ function infixToPostfix(expr)
     //     };
     function nextToken() // tested works fine
     {
-        while (i < expr.length && expr[i] == ' ') {i++;}
-        if (i == expr.length) {return '';}
+        while (i < expr.length && expr[i] == ' ')
+        {
+            i++;
+        }
+        if (i == expr.length)
+        {
+            return '';
+        }
         let b = '';
-        while (i < expr.length && expr[i] != ' ' && expr[i] != '(' && expr[i] != ')' && !operators.has(expr[i])) {b += expr[i++];}
-        if (b != '') {return b;}
+        while (i < expr.length && expr[i] != ' ' && expr[i] != '(' && expr[i] != ')' && !operators.has(expr[i]))
+        {
+            b += expr[i++];
+        }
+        if (b != '')
+        {
+            return b;
+        }
         return expr[i++];
     }
     //var S = [], O = [], tok;
@@ -75,7 +86,10 @@ function infixToPostfix(expr)
     let tok;
     while ((tok = nextToken()) != '')
     {
-        if (tok == '(') {S.push(tok);} // fine
+        if (tok == '(')
+        {
+            S.push(tok);
+        } // fine
         else if (tok == ')')
         {
             while (S.length > 0 && S[S.length - 1] != '(') O.push(S.pop());
@@ -93,16 +107,23 @@ function infixToPostfix(expr)
             //     console.log(tok);
             // }
             // so !leftAssoc(tok) must be changed for tok == '^'
-            while (S.length > 0 
-                && operators.has(S[S.length - 1]) 
+            while (S.length > 0 &&
+                operators.has(S[S.length - 1])
                 //&& ((leftAssoc(tok) 
-                && (((tok != '^') // replaced leftAssoc(tok) with this works fine
-                && priorityMap.get(tok) 
-                <= priorityMap.get(S[S.length - 1])) 
-                //|| ((!leftAssoc(tok))
-                || ((tok == '^') // replaced !leftAssoc(tok) with this works fine
-                && priorityMap.get(tok) 
-                < priorityMap.get(S[S.length - 1])))) {O.push(S.pop());}
+                &&
+                (((tok != '^') // replaced leftAssoc(tok) with this works fine
+                        &&
+                        priorityMap.get(tok) <=
+                        priorityMap.get(S[S.length - 1]))
+                    //|| ((!leftAssoc(tok))
+                    ||
+                    ((tok == '^') // replaced !leftAssoc(tok) with this works fine
+                        &&
+                        priorityMap.get(tok) <
+                        priorityMap.get(S[S.length - 1]))))
+            {
+                O.push(S.pop());
+            }
             S.push(tok);
         }
         else
@@ -117,12 +138,18 @@ function infixToPostfix(expr)
         // {
         //     console.log(S[S.length - 1]);
         // }
-        if(!(operators.has(S[S.length - 1]))) {return 'Mismatched parenthesis.';}
+        if (!(operators.has(S[S.length - 1])))
+        {
+            return 'Mismatched parenthesis.';
+        }
         //!(operators.has(S[S.length - 1]))
         //if (!isOperator(S[S.length - 1])) return 'Mismatched parenthesis.';
         O.push(S.pop());
     }
-    if (O.length == 0) {return 'Invalid expression.';}
+    if (O.length == 0)
+    {
+        return 'Invalid expression.';
+    }
     let s = '';
     for (let i = 0; i < O.length; i++)
     {
@@ -137,14 +164,6 @@ let ppp = "6-8^4*7*1/3";
 console.log(ppp);
 console.log("Resssss " + infixToPostfix(ppp));
 console.log("Must be 684^7*1*3/-");
-
-
-
-
-
-
-
-
 
 function evaluatePostfixExpression(expr)
 {
@@ -184,7 +203,7 @@ function generateRandomExpression()
 {
     const maxDepth = 3; // Maximum recursion depth
     const maxOperands = 2; // Maximum number of operands per sub-expression
-    const operators = ["+", "-", "*", "/", "^" ];
+    const operators = ["+", "-", "*", "/", "^"];
     const operands = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
     let expression = "";
 
@@ -272,59 +291,55 @@ function generateRandomExpression()
     return expression;
 }
 
-
-
-
 // Javascript program to evaluate value of a postfix expression
 // Method to evaluate value of a postfix expression
 function evaluatePostfix(exp)
 {
-	//create a stack
-		let stack=[];
-		
-		// Scan all characters one by one
-		for(let i=0;i<exp.length;i++)
-		{
-			let c=exp[i];
-			
-			// If the scanned character is an operand (number here),
-			// push it to the stack.
-			if(! isNaN( parseInt(c) ))
-			stack.push(c.charCodeAt(0) - '0'.charCodeAt(0));
-			
-			// If the scanned character is an operator, pop two
-			// elements from stack apply the operator
-			else
-			{
-				let val1 = stack.pop();
-				let val2 = stack.pop();
-				
-				switch(c)
-				{
-					case '+':
-					stack.push(val2+val1);
-					break;
-					
-					case '-':
-					stack.push(val2- val1);
-					break;
-					
-					case '/':
-					stack.push(val2/val1);
-					break;
-					
-					case '*':
-					stack.push(val2*val1);
-					break;
-                    case '^':
+    //create a stack
+    let stack = [];
+
+    // Scan all characters one by one
+    for (let i = 0; i < exp.length; i++)
+    {
+        let c = exp[i];
+
+        // If the scanned character is an operand (number here),
+        // push it to the stack.
+        if (!isNaN(parseInt(c)))
+            stack.push(c.charCodeAt(0) - '0'.charCodeAt(0));
+
+        // If the scanned character is an operator, pop two
+        // elements from stack apply the operator
+        else
+        {
+            let val1 = stack.pop();
+            let val2 = stack.pop();
+
+            switch (c)
+            {
+                case '+':
+                    stack.push(val2 + val1);
+                    break;
+
+                case '-':
+                    stack.push(val2 - val1);
+                    break;
+
+                case '/':
+                    stack.push(val2 / val1);
+                    break;
+
+                case '*':
+                    stack.push(val2 * val1);
+                    break;
+                case '^':
                     stack.push(Math.pow(val2, val1));
                     break;
-			}
-			}
-		}
-		return stack.pop();
+            }
+        }
+    }
+    return stack.pop();
 }
-
 
 function postfixToInfix(expression)
 {
@@ -360,31 +375,39 @@ function postfixToInfix(expression)
     let i = 0;
     const nextToken = function()
     {
-        while (i < expression.length && expression[i] == ' ') {
-            i++;}
-        if (i == expression.length) {return '';}
+        while (i < expression.length && expression[i] == ' ')
+        {
+            i++;
+        }
+        if (i == expression.length)
+        {
+            return '';
+        }
         let token = '';
-        while (i < expression.length && expression[i] != ' ') {token += expression[i++];}
+        while (i < expression.length && expression[i] != ' ')
+        {
+            token += expression[i++];
+        }
         return token;
     };
-//     const printExpression = function(node) // Получаем дерево
-// {
-//     if (typeof(node) == 'string')
-//     {
-//         return node;
-//     }
-//     let left = printExpression(node.left);
-//     let right = printExpression(node.right);
-//     if (typeof(node.left) != 'string' && (priorityMap.get(node.left.op) < priorityMap.get(node.op) || (node.left.op == node.op && node.op == '^')))
-//     {
-//         left = '(' + left + ')';
-//     }
-//     if (typeof(node.right) != 'string' && (rightPriorityMap.get(node.right.op) < rightPriorityMap.get(node.op) || (node.right.op == node.op && (node.op == '-' || node.op == '/'))))
-//     {
-//         right = '(' + right + ')';
-//     }
-//     return left + ' ' + node.op + ' ' + right;
-// };
+    //     const printExpression = function(node) // Получаем дерево
+    // {
+    //     if (typeof(node) == 'string')
+    //     {
+    //         return node;
+    //     }
+    //     let left = printExpression(node.left);
+    //     let right = printExpression(node.right);
+    //     if (typeof(node.left) != 'string' && (priorityMap.get(node.left.op) < priorityMap.get(node.op) || (node.left.op == node.op && node.op == '^')))
+    //     {
+    //         left = '(' + left + ')';
+    //     }
+    //     if (typeof(node.right) != 'string' && (rightPriorityMap.get(node.right.op) < rightPriorityMap.get(node.op) || (node.right.op == node.op && (node.op == '-' || node.op == '/'))))
+    //     {
+    //         right = '(' + right + ')';
+    //     }
+    //     return left + ' ' + node.op + ' ' + right;
+    // };
 
     function printExpression(node)
     {
@@ -404,8 +427,6 @@ function postfixToInfix(expression)
         }
         return left + ' ' + node.op + ' ' + right;
     }
-
-
 
     const stack = [];
     let token;
@@ -439,6 +460,7 @@ function postfixToInfix(expression)
     if (stack.length != 1) return 'Invalid expression.';
     return printExpression(stack.pop()).replace(/\s/g, '');
 }
+
 function evaluateInfixExpression(expression)
 {
     console.log("evaluateInfixExpression " + expression);
