@@ -1,33 +1,3 @@
-// function isOperator(c)
-// {
-//     return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
-// }
-
-// function leftAssoc(c)
-// {
-//     return c != '^';
-// }
-
-// function priority(c)
-// {
-//     if (c == '^') return 3;
-//     if (c == '*') return 2;
-//     if (c == '/') return 2;
-//     if (c == '+') return 1;
-//     if (c == '-') return 1;
-//     return 0;
-// }
-
-// function rightPriority(c)
-// {
-//     if (c == '+') return 1;
-//     if (c == '-') return 2;
-//     if (c == '*') return 3;
-//     if (c == '/') return 4;
-//     if (c == '^') return 5;
-//     return 0;
-// }
-
 function infixToPostfix(expression)
 {
     priorityMap = new Map([
@@ -57,17 +27,7 @@ function infixToPostfix(expression)
         }
     }
     expression = spacedExpr;
-    console.log(expression);
     let index = 0;
-    // const nextToken = function()
-    //     {
-    //         while (i < expr.length && expr[i] == ' ') i++;
-    //         if (i == expr.length) return '';
-    //         var b = '';
-    //         while (i < expr.length && expr[i] != ' ' && expr[i] != '(' && expr[i] != ')' && !isOperator(expr[i])) b += expr[i++];
-    //         if (b != '') return b;
-    //         return expr[i++];
-    //     };
     function nextToken() // tested works fine TODO ИЗБАВИТСЯ НАХЕР ОТ НЕЁЁ, НАДО ДЕЛАТЬ ВСЕ В ОДНОМ ЦИКЛЕ ВАЙЛ
     {
         while (index < expression.length && expression[index] == ' ')
@@ -78,14 +38,14 @@ function infixToPostfix(expression)
         {
             return '';
         }
-        let b = '';
+        let buffer = '';
         while (index < expression.length && expression[index] != ' ' && expression[index] != '(' && expression[index] != ')' && !operators.has(expression[index]))
         {
-            b += expression[index++];
+            buffer += expression[index++];
         }
-        if (b != '')
+        if (buffer != '')
         {
-            return b;
+            return buffer;
         }
         return expression[index++];
     }
@@ -113,15 +73,15 @@ function infixToPostfix(expression)
         }
         else if (operandType !== null)
         {
-            if (operandType === 'number' && isNaN(currentToken) && currentToken != " " && !(operators.has(currentToken)) && currentToken != '(' && currentToken != ')')
+            if (operandType === 'number' && isNaN(currentToken) && currentToken != " " && !(operators.has(currentToken)))
             {
                 console.log(`operandType ${operandType}\n currentToken ${currentToken}\n`);
-                throw new Error(`Invalid expression [ ${expression} ]: operands must be of the same type`);
+                throw new Error(`1Invalid expression [ ${expression} ]: operands must be of the same type`);
             }
-            else if (operandType === 'letter' && !(/[a-zA-Z]/.test(currentToken)) && currentToken != " " && !(operators.has(currentToken)) && currentToken != '(' && currentToken != ')')
+            else if (operandType === 'letter' && !(/[a-zA-Z]/.test(currentToken)) && currentToken != " " && !(operators.has(currentToken)))
             {
                 console.log(`operandType ${operandType}\n currentToken ${currentToken}\n`);
-                throw new Error(`Invalid expression [ ${expression} ]: operands must be of the same type`);
+                throw new Error(`2Invalid expression [ ${expression} ]: operands must be of the same type`);
             }
         }
         if (currentToken == '(')
@@ -136,14 +96,6 @@ function infixToPostfix(expression)
         }
         else if (operators.has(currentToken)) // opereators
         {
-            //console.log(`isOperator ${isOperator(tok)}\noperators.has(tok) ${opereators.has(tok)}\n`);
-            // need to repalce leftAssoc(tok) with something else like 
-            //            while (S.length > 0 && operators.has(S[S.length - 1]) && ((leftAssoc(tok) && priority(tok) <= priority(S[S.length - 1])) || (!leftAssoc(tok) && priority(tok) < priority(S[S.length - 1])))) O.push(S.pop());
-            // console.log(`!leftAssoc(tok) ${!leftAssoc(tok)}\n(tok != '^') ${tok != '^' ? false : true}\n`);
-            // if (!leftAssoc(tok) != (tok == '^'))
-            // {
-            //     console.log(tok);
-            // }
             // so !leftAssoc(tok) must be changed for tok == '^'
             while (stackOp.length > 0 &&
                 operators.has(stackOp[stackOp.length - 1])
@@ -171,17 +123,11 @@ function infixToPostfix(expression)
     }
     while (stackOp.length > 0)
     {
-        //need to replace !isOperator(S[S.length - 1]) with operators.has(S[S.length - 1])
-        // if ((!(isOperator(S[S.length - 1]) == !(operators.has(S[S.length - 1])))))
-        // {
-        //     console.log(S[S.length - 1]);
-        // }
+
         if (!(operators.has(stackOp[stackOp.length - 1])))
         {
             return 'Mismatched parenthesis.';
         }
-        //!(operators.has(S[S.length - 1]))
-        //if (!isOperator(S[S.length - 1])) return 'Mismatched parenthesis.';
         output.push(stackOp.pop());
     }
     if (output.length == 0)
@@ -198,11 +144,13 @@ function infixToPostfix(expression)
     return s;
 }
 
-let ppp = "a+)";
-// console.log(ppp);
-console.log("Resssss " + infixToPostfix(ppp));
+// let ppp = "((2+2))";
+// // console.log(ppp);
+// console.log("Resssss " + infixToPostfix(ppp));
+
 // console.log("Must be 684^7*1*3/-");
-return;
+
+// return;
 function evaluatePostfixExpression(expr)
 {
     const stack = [];
@@ -511,7 +459,7 @@ function testCases(num)
     for (let i = 0; i < num; i++)
     {
         let expression = generateRandomExpression();
-        let postfixExpression = infixToPostfix(expression);
+        let postfixExpression = infixToPostfix2(expression);
         let infixExpression = postfixToInfix(postfixExpression);
         infixExpression = infixExpression.replace(/\s+/g, '');
         postfixExpression = postfixExpression.replace(/\s+/g, '');
@@ -533,5 +481,90 @@ function testCases(num)
 }
 
 console.time("testCases");
-testCases(10);
+testCases(1000);
 console.timeEnd("testCases");
+
+
+
+function infixToPostfix2(expression) {
+    const priorityMap = new Map([
+        ['^', 3],
+        ['*', 2],
+        ['/', 2],
+        ['+', 1],
+        ['-', 1]
+    ]);
+    const operators = new Set(['+', '-', '*', '/', '^']);
+    let operandType = null; // Тип операнда для проверки на однотипность
+
+    if (expression.length === 0) // Проверка на пустую строку
+        throw new Error("Invalid expression: empty string");
+
+    if (expression.length === 1) // Проверка на один символ
+        throw new Error(`Invalid expression [ ${expression} ]: expression must contain at least two operands and one operator`);
+
+    let spacedExpr = "";
+    expression = expression.replace(/\s+/g, '');
+    for (let i = 0; i < expression.length; i++) {
+        spacedExpr += expression[i];
+        if (i < expression.length - 1) {
+            spacedExpr += " ";
+        }
+    }
+    expression = spacedExpr;
+    let stackOp = [];
+    let output = [];
+    let currentToken ="";
+    let index = 0;
+    while (index < expression.length) {
+        let buffer = '';
+        while (index < expression.length && expression[index] != ' ' && expression[index] != '(' && expression[index] != ')' && !operators.has(expression[index])) {
+            buffer += expression[index++];
+        }
+        if (buffer != '') {
+            currentToken = buffer;
+        } else {
+            currentToken = expression[index++];
+            while (currentToken == ' ') {
+                currentToken = expression[index++];
+            }
+        }
+        if (currentToken == '(') {
+            stackOp.push(currentToken);
+        } else if (currentToken == ')') {
+            while (stackOp.length > 0 && stackOp[stackOp.length - 1] != '(') output.push(stackOp.pop());
+            if (stackOp.length == 0) {
+                return 'Mismatched parenthesis.';
+            }
+            stackOp.pop();
+        } else if (operators.has(currentToken))
+        {
+            while (stackOp.length > 0 &&
+                operators.has(stackOp[stackOp.length - 1]) && (((currentToken != '^') && 
+                priorityMap.get(currentToken) <= priorityMap.get(stackOp[stackOp.length - 1])) ||
+                ((currentToken == '^') && priorityMap.get(currentToken) < priorityMap.get(stackOp[stackOp.length - 1]))))
+            {
+                output.push(stackOp.pop());
+            }
+            stackOp.push(currentToken);
+        } else {
+            output.push(currentToken);
+        }
+    }
+    while (stackOp.length > 0) {
+        if (!(operators.has(stackOp[stackOp.length - 1]))) {
+            return 'Mismatched parenthesis.';
+        }
+        output.push(stackOp.pop());
+    }
+    if (output.length == 0) {
+        return 'Invalid expression.';
+    }
+    let s = '';
+    for (let i = 0; i < output.length; i++) {
+        if (i != 0) s += ' ';
+        s += output[i];
+    }
+    s = s.replace(/\s/g, '');
+    return s;
+}

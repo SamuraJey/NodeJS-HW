@@ -31,96 +31,187 @@ function rightPriority(c)
 
 function infixToPostfix(expr)
 {
-    var i = 0,
-        nextToken = function()
-        {
-            while (i < expr.length && expr[i] == ' ') i++;
-            if (i == expr.length) return '';
-            var b = '';
-            while (i < expr.length && expr[i] != ' ' && expr[i] != '(' && expr[i] != ')' && !isOperator(expr[i])) b += expr[i++];
-            if (b != '') return b;
-            return expr[i++];
-        };
-    var S = [],
-        O = [],
-        tok;
-    while ((tok = nextToken()) != '')
+    const opereators = new Set(['+', '-', '*', '/', '^']);
+    const priorityMap = new Map([
+        ['-', 1],
+        ['+', 1],
+        ['/', 2],
+        ['*', 2],
+        ['^', 3]
+    ]);
+    var i = 0;
+    function nextToken()
     {
-        if (tok == '(') S.push(tok);
-        else if (tok == ')')
+        while (i < expr.length && expr[i] == ' ') {i++;}
+        if (i == expr.length) {return '';}
+        let b = '';
+        while (i < expr.length && expr[i] != ' ' && expr[i] != '(' && expr[i] != ')' && !opereators.has(expr[i])) {b += expr[i++];}
+        if (b != '') {return b;}
+        return expr[i++];
+    }
+
+    let stack = [];
+    let output = [];
+    let currentToken;
+    while ((currentToken = nextToken()) != '')
+    {
+        if (currentToken == '(') stack.push(currentToken);
+        else if (currentToken == ')')
         {
-            while (S.length > 0 && S[S.length - 1] != '(') O.push(S.pop());
-            if (S.length == 0) return 'Mismatched parenthesis.';
-            S.pop();
+            while (stack.length > 0 && stack[stack.length - 1] != '(') output.push(stack.pop());
+            if (stack.length == 0) 
+            {
+                throw new Error('Mismatched parenthesis.');
+                return 'Mismatched parenthesis.';
+            }
+            stack.pop();
         }
-        else if (isOperator(tok))
+        else if (opereators.has(currentToken))
         {
-            while (S.length > 0 && isOperator(S[S.length - 1]) && ((leftAssoc(tok) && priority(tok) <= priority(S[S.length - 1])) || (!leftAssoc(tok) && priority(tok) < priority(S[S.length - 1])))) O.push(S.pop());
-            S.push(tok);
+            while (stack.length > 0 && opereators.has(stack[stack.length - 1]) && ((currentToken != '^' ? true : false && priorityMap.get(currentToken) <= priorityMap.get(stack[stack.length - 1])) || (!(currentToken != '^' ? false : true) && priorityMap.get(currentToken) < priorityMap.get(stack[stack.length - 1])))) 
+            {
+                output.push(stack.pop());
+            }
+            stack.push(currentToken);
         }
         else
         {
-            O.push(tok);
+            output.push(currentToken);
         }
     }
-    while (S.length > 0)
+    while (stack.length > 0)
     {
-        if (!isOperator(S[S.length - 1])) return 'Mismatched parenthesis.';
-        O.push(S.pop());
+        if (!(opereators.has(stack[stack.length - 1]))) 
+        {
+            return 'Mismatched parenthesis.';
+        }
+        output.push(stack.pop());
     }
-    if (O.length == 0) return 'Invalid expression.'
-    var s = '';
-    for (var i = 0; i < O.length; i++)
+    if (output.length == 0) {return 'Invalid expression.';}
+    let s = '';
+    for (let i = 0; i < output.length; i++)
     {
         if (i != 0) s += ' ';
-        s += O[i];
+        s += output[i];
     }
+    s = s.replace(/\s+/g, '');
     return s;
 }
 
-function postfixToInfix(expr)
+function postfixToInfix(expression)
 {
-    var i = 0,
-        nextToken = function()
-        {
-            while (i < expr.length && expr[i] == ' ') i++;
-            if (i == expr.length) return '';
-            var b = '';
-            while (i < expr.length && expr[i] != ' ') b += expr[i++];
-            return b;
-        },
-        print = function(x)
-        {
-            if (typeof(x) == 'string') return x;
-            var l = print(x.l),
-                r = print(x.r);
-            if (typeof(x.l) != 'string' && (priority(x.l.op) < priority(x.op) || (x.l.op == x.op && x.op == '^')))
-                l = '(' + l + ')';
-            if (typeof(x.r) != 'string' && (rightPriority(x.r.op) < rightPriority(x.op) || (x.r.op == x.op && (x.op == '-' || x.op == '/'))))
-                r = '(' + r + ')';
-            return l + ' ' + x.op + ' ' + r;
-        };
-    var S = [],
-        tok;
-    while ((tok = nextToken(expr)) != '')
+    const operators = new Set(['+', '-', '*', '/', '^']);
+    const priorityMap = new Map([
+        ['-', 1],
+        ['+', 1],
+        ['/', 2],
+        ['*', 2],
+        ['^', 3]
+    ]);
+
+    const rightPriorityMap = new Map([
+        ['+', 1],
+        ['-', 2],
+        ['*', 3],
+        ['/', 4],
+        ['^', 5]
+    ]);
+
+    let spacedExpr = "";
+    expression = expression.replace(/\s+/g, '');
+    for (let i = 0; i < expression.length; i++)
     {
-        if (isOperator(tok))
+        spacedExpr += expression[i];
+        if (i < expression.length - 1)
         {
-            if (S.length < 2) return 'Invalid expression.';
-            S.push(
+            spacedExpr += " ";
+        }
+    }
+    expression = spacedExpr;
+
+    let i = 0;
+    const nextToken = function()
+    {
+        while (i < expression.length && expression[i] == ' ') {
+            i++;}
+        if (i == expression.length) {return '';}
+        let token = '';
+        while (i < expression.length && expression[i] != ' ') {token += expression[i++];}
+        return token;
+    };
+    const printExpression = function(node) // Получаем дерево
+{
+    if (typeof(node) == 'string')
+    {
+        return node;
+    }
+    let left = printExpression(node.left);
+    let right = printExpression(node.right);
+    if (typeof(node.left) != 'string' && (priorityMap.get(node.left.op) < priorityMap.get(node.op) || (node.left.op == node.op && node.op == '^')))
+    {
+        left = '(' + left + ')';
+    }
+    if (typeof(node.right) != 'string' && (rightPriorityMap.get(node.right.op) < rightPriorityMap.get(node.op) || (node.right.op == node.op && (node.op == '-' || node.op == '/'))))
+    {
+        right = '(' + right + ')';
+    }
+    return left + ' ' + node.op + ' ' + right;
+};
+
+//     function printExpression(node) {
+//         if (typeof(node) == 'string') {
+//           return node;
+//         }
+//         let left = printExpression(node.left);
+//         let right = printExpression(node.right);
+//         let leftIsOp = (typeof(node.left) != 'string');
+//         let rightIsOp = (typeof(node.right) != 'string');
+//         // Запишем словами этот if Если левый лист оператор и приоритет операции слева операция и приоритет левого операнда меньше приоритета текущей операции или приоритеты равны и текущая операция не '^', то обернем левый операнд в скобки
+//         // Запишем словами этот if Если правый лист оператор и приоритет операции слева меньше приоритета теущей операции или приоритеты равны и текущая операция не '^', то обернем правый операнд в скобки
+//         /*
+//         Если node.left является оператором и (приоритет оператора node.left меньше приоритета оператора node.op или операторы node.left и node.op идентичны и оператор node.op не ^), тогда:
+// left присваивается заключенной в скобки версии left
+//         */
+//         if (leftIsOp && (priorityMap.get(node.left.op) < priorityMap.get(node.op) || (node.left.op == node.op && node.op != '^'))) {
+//           left = '(' + left + ')';
+//         }
+//         if (rightIsOp && (rightPriorityMap.get(node.right.op) < rightPriorityMap.get(node.op) || (node.right.op == node.op && (node.op == '-' || node.op == '/')))) {
+//           right = '(' + right + ')';
+//         }
+      
+//         return left + ' ' + node.op + ' ' + right;
+//       }
+    const stack = [];
+    let token;
+    let counter = 1;
+    while ((token = nextToken(expression)) != '') // 7+3/5-1-(8-5)
+    {
+        //if (isOperator(token))
+        if (operators.has(token))
+        {
+            if (stack.length < 2) return 'Invalid expression.';
+            stack.push(
             {
-                op: tok,
-                r: S.pop(),
-                l: S.pop()
+                op: token,
+                right: stack.pop(),
+                left: stack.pop()
             });
         }
         else
         {
-            S.push(tok);
+            stack.push(token);
         }
+        const stackCopyStr = JSON.stringify(stack);
+        // Запись состояния стека в файл
+        // fs.appendFileSync('stack_state_pref_to_inf.json', `State ${counter}: ${stackCopyStr} \n`, err =>
+        // {
+        //     if (err) throw err;
+        //     //console.log('Состояние стека было успешно записано в файл!');
+        // });
+        counter++;
     }
-    if (S.length != 1) return 'Invalid expression.';
-    return print(S.pop());
+    if (stack.length != 1) return 'Invalid expression.';
+    return printExpression(stack.pop()).replace(/\s/g, '');
 }
 
 
@@ -338,4 +429,14 @@ function testCases(num)
     }
 }
 
-testCases(1000);
+// testCases(1000);
+// return;
+let ppp = "6-8^4*7*1/3";
+console.log(ppp);
+console.log(infixToPostfix(ppp));
+console.log(postfixToInfix(infixToPostfix(ppp)));
+
+console.log(evaluateInfixExpression(ppp));
+console.log(evaluatePostfix(infixToPostfix(ppp)));
+
+// 684^7*1*3/- 

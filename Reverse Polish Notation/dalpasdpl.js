@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function infixToPostfix(expression)
 {
     const priorityMap = new Map([
@@ -12,17 +14,17 @@ function infixToPostfix(expression)
     let lastToken = null; // последний обработанный токен
 
     if (expression.length === 0) // Проверка на пустую строку
-        throw new Error("Invalid expression: empty string");
+        throw new Error("Error Invalid expression: empty string");
 
     if (expression.length === 1) // Проверка на один символ
-        throw new Error(`Invalid expression [ ${expression} ]: expression must contain at least two operands and one operator`);
+        throw new Error(`Error Invalid expression [ ${expression} ]: expression must contain at least two operands and one operator`);
 
-    let suka = /[a-zA-Z]/.test(expression);
-    let huy = /[0-9]/.test(expression);
-    if (/[a-zA-Z]/.test(expression) && /[0-9]/.test(expression)) // Проверка на наличие букв и цифр
+    let hasNumbers = /[a-zA-Z]/.test(expression);
+    let hasChars = /[0-9]/.test(expression);
+    if (hasNumbers && hasChars) // Проверка на наличие букв и цифр
     {
-        console.log("Invalid expression: expression cannot contain letters and numbers at the same time");
-        throw new Error(`Invalid expression [ ${expression} ]: expression cannot contain letters and numbers at the same time`);
+        console.log("Error Invalid expression: expression cannot contain letters and numbers at the same time");
+        throw new Error(`Error Invalid expression [ ${expression} ]: expression cannot contain letters and numbers at the same time`);
     }
 
     let stack1 = [];
@@ -36,8 +38,8 @@ function infixToPostfix(expression)
         {
             if (stack1.length === 0)
             {
-                console.log("Invalid expression: closing bracket without opening bracket");
-                throw new Error(`Invalid expression [ ${expression} ]: closing bracket without opening bracket`);
+                console.log("Error Invalid expression: closing bracket without opening bracket");
+                throw new Error(`Error Invalid expression [ ${expression} ]: closing bracket without opening bracket`);
                 break;
             }
             else
@@ -48,8 +50,8 @@ function infixToPostfix(expression)
     }
     if (stack1.length !== 0)
     {
-        console.log("Invalid expression: opening bracket without closing bracket");
-        throw new Error(`Invalid expression [ ${expression} ]: opening bracket without closing bracket`);
+        console.log("Error Invalid expression: opening bracket without closing bracket");
+        throw new Error(`Error Invalid expression [ ${expression} ]: opening bracket without closing bracket`);
     }
 
     let spacedExpr = "";
@@ -90,41 +92,38 @@ function infixToPostfix(expression)
 
         if (lastToken !== null) // Проверка на недопустимые последовательности
         {
-
             if (lastToken === '(' && operators.has(currentToken))
             {
-                throw new Error(`Invalid expression [ ${expression} ]: expression cannot start with an operator after an opening bracket`);
+                throw new Error(`Error Invalid expression [ ${expression} ]: expression cannot start with an operator after an opening bracket`);
             }
             else if (lastToken === ')' && !operators.has(currentToken) && currentToken != ')')
             {
-                throw new Error(`Invalid expression [ ${expression} ]: expression cannot start with an operand after a closing bracket`);
+                throw new Error(`Error Invalid expression [ ${expression} ]: expression cannot start with an operand after a closing bracket`);
             }
             else if (operators.has(lastToken) && operators.has(currentToken))
             {
-                throw new Error(`Invalid expression [ ${expression} ]: expression cannot have two operators in a row`);
+                throw new Error(`Error Invalid expression [ ${expression} ]: expression cannot have two operators in a row`);
             }
             else if (lastToken === '(' && currentToken === ')')
             {
-                throw new Error(`Invalid expression [ ${expression} ]: expression cannot have empty brackets`);
+                throw new Error(`Error Invalid expression [ ${expression} ]: expression cannot have empty brackets`);
             }
             // ЕСЛИ открывающая скобка, а перед ней не оператор, то ошибка
             else if (currentToken === '(' && !(operators.has(lastToken)) && lastToken != " " && currentToken != " " && lastToken != '(' && lastToken != ')' && lastToken != '')
             {
-                throw new Error(`Invalid expression [ ${expression} ]: HUY cannot have two operands in a row`);
+                throw new Error(`Error Invalid expression [ ${expression} ]: WHO cannot have two operands in a row`);
             }
             else if (!(isNaN(lastToken)) && !(isNaN(currentToken)) && lastToken != " " && currentToken != " ")
             {
-                throw new Error(`Invalid expression [ ${expression} ]: expression cannot have two operands in a row`);
+                throw new Error(`Error Invalid expression [ ${expression} ]: expression cannot have two operands in a row`);
             }
         }
         if (currentToken === '(')
         {
-            //bracketCount++; 
             stackOp.push(currentToken);
         }
         else if (currentToken === ')')
         {
-            //bracketCount--;
             while (stackOp[stackOp.length - 1] !== '(')
             {
                 output.push(stackOp.pop());
@@ -143,17 +142,12 @@ function infixToPostfix(expression)
         {
             output.push(currentToken);
         }
-
         lastToken = currentToken; // Обновление последнего обработанного токена
     }
-
-    // if (bracketCount !== 0) // Проверка на сбалансированность скобок
-    //     throw new Error(`Invalid expression [ ${expression} ]: brackets are not balanced`);
-
     while (stackOp.length > 0)
     {
         if (stackOp[stackOp.length - 1] === '(' || stackOp[stackOp.length - 1] === ')')
-            throw new Error(`Invalid expression [ ${expression} ]: expression cannot end with a bracket`);
+            throw new Error(`Error Invalid expression [ ${expression} ]: expression cannot end with a bracket`);
         output.push(stackOp.pop());
     }
 
@@ -222,7 +216,7 @@ function evaluatePostfixExpression(expr)
         }
         else
         {
-            throw new Error(`Invalid character: ${token}`);
+            throw new Error(`Error Invalid character: ${token}`);
         }
     }
     return stack[0];
@@ -447,7 +441,7 @@ function postfixToInfix(expression)
         //if (isOperator(token))
         if (operators.has(token))
         {
-            if (stack.length < 2) return 'Invalid expression.';
+            if (stack.length < 2) return 'Error Invalid expression.';
             stack.push(
             {
                 op: token,
@@ -461,14 +455,14 @@ function postfixToInfix(expression)
         }
         const stackCopyStr = JSON.stringify(stack);
         // Запись состояния стека в файл
-        // fs.appendFileSync('stack_state_pref_to_inf.json', `State ${counter}: ${stackCopyStr} \n`, err =>
-        // {
-        //     if (err) throw err;
-        //     //console.log('Состояние стека было успешно записано в файл!');
-        // });
+        fs.appendFileSync('stack_state_pref_to_inf.json', `State ${counter}: ${stackCopyStr} \n`, err =>
+        {
+            if (err) throw err;
+            //console.log('Состояние стека было успешно записано в файл!');
+        });
         counter++;
     }
-    if (stack.length != 1) return 'Invalid expression.';
+    if (stack.length != 1) return 'Error Invalid expression.';
     return printExpression(stack.pop()).replace(/\s/g, '');
 }
 
@@ -505,6 +499,87 @@ function testCases(num)
     }
 }
 
-console.time("testCases");
-testCases(1000);
-console.timeEnd("testCases");
+
+function main()
+{
+    let [mode, inputExpr, input3] = process.argv.slice(2);
+    const allowedModes = ['-t', '-e', '-d'];
+
+    switch (mode)
+    {
+        case undefined:
+            console.log("No mode specified");
+            console.log(`Allowed modes: ${allowedModes}`);
+            process.exit(1);
+        case '-t':
+            testCases(inputExpr);
+            break;
+        case '-e':
+            try
+            {
+                if (/[a-zA-Z]/.test(inputExpr) && !(/[0-9]/.test(inputExpr)))
+                {
+                    const postfixExpression = infixToPostfix(inputExpr);
+                    const infixExpression = postfixToInfix(postfixExpression);
+                    console.log(`Postfix expression: ${postfixExpression}`);
+                    console.log(`Restored Infix expression: ${infixExpression}`);
+                }
+                else if (/[0-9]/.test(inputExpr) && !(/[a-zA-Z]/.test(inputExpr)))
+                {
+                    const postfixExpression = infixToPostfix(inputExpr);
+                    const postfixResult = evaluatePostfix(postfixExpression);
+                    const infixExpression = postfixToInfix(postfixExpression);
+                    const infixResult = evaluateInfixExpression(infixExpression);
+                    console.log(`Postfix expression: ${postfixExpression}`);
+                    console.log(`Postfix result: ${postfixResult}`);
+                    console.log(`Restored Infix expression: ${infixExpression}`);
+                    console.log(`Infix result: ${infixResult}`);
+                }
+                else
+                {
+                    throw new Error(`Error Invalid expression [ ${  inputExpr } ]`);
+                }
+            }
+            catch (error)
+            {
+                console.log(error.message);
+            }
+            break;
+        case '-d':
+            try
+            {
+                if (/[a-zA-Z]/.test(inputExpr) && !(/[0-9]/.test(inputExpr)))
+                {
+                    const infixExpression = postfixToInfix(inputExpr);
+                    const postfixExpression = infixToPostfix(infixExpression);
+                    console.log(`Infix expression: ${infixExpression}`);
+                    console.log(`Restored Postfix expression: ${postfixExpression}`);
+                }
+                else if (/[0-9]/.test(inputExpr) && !(/[a-zA-Z]/.test(inputExpr)))
+                {
+                    const infixExpression = postfixToInfix(inputExpr);
+                    const infixResult = evaluateInfixExpression(infixExpression);
+                    const postfixExpression = infixToPostfix(infixExpression);
+                    const postfixResult = evaluatePostfixExpression(postfixExpression);
+                    console.log(`Infix expression: ${infixExpression}`);
+                    console.log(`Infix result: ${infixResult}`);
+                    console.log(`Restored Postfix expression: ${postfixExpression}`);
+                    console.log(`Posrfix result: ${postfixResult}`);
+                }
+                else
+                {
+                    throw new Error(`Error Invalid expression [ ${  inputExpr } ] : operands must be of the same type`);
+                }
+            }
+            catch (error)
+            {
+                console.log(error.message);
+            }
+            break;
+        default:
+            console.log(`Error Invalid mode: ${mode}`);
+            console.log(`Allowed modes: ${allowedModes}`);
+            process.exit(1);
+    }
+}
+main();
