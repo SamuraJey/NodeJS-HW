@@ -179,12 +179,12 @@ class BoyerMoore
             );
         }
 
-        if (res.length === 0)
-        {
-            res.push(-1);
-            return res;
-        }
-        return res;
+        // if (res.length === 0)
+        // {
+        //     res.push(-1);
+        //     return res;
+        // }
+        return res.length > 0 ? res : [-1];
     }
 
     makeBadCharTable()

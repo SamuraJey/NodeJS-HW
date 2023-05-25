@@ -116,7 +116,7 @@ class BoyerMoore
       }
       
       // это по сути брутфорс, но с учетом таблиц смещений
-      for (let i = subStrLength - 1, j; i < strLength;) // пока не конец текста
+      for (let i = subStrLength - 1, j; i < strLength;) // пока не конец текста, i - индекс в тексте, j - индекс в подстроке, начинаем с конца подстроки
       {
         for (j = subStrLength - 1; this.pattern[j] === text[i]; i--, j--)  // пока символы совпадают
         {
@@ -130,13 +130,7 @@ class BoyerMoore
         const charCode = text.charCodeAt(i); // получаем код символа на месте i
         i += Math.max(this.goodSuffixTable[subStrLength - 1 - j], this.badCharTable[charCode]); // смещаемся на максимум из смещений по таблицам
       }
-  
-      if (res.length === 0) // если ничего не нашли то -1
-      {
-        res.push(-1);
-        return [res];
-      }
-      return res;
+      return res.length > 0 ? res : [-1];
     }
   
     makeBadCharTable() // таблица смещений для каждого символа 
@@ -195,6 +189,10 @@ const fs = require('fs');
 let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
 
 let inputSubStr = "Андрей Болконский";
+
+inputText = "Персональные данные"
+inputSubStr = "данные"
+
 let strt = performance.now();
 const bm = new BoyerMoore(inputSubStr);            
 let boyerMooreRes = bm.search(inputText)
