@@ -280,7 +280,6 @@ function generateRandomExpression()
     return expression;
 }
 
-
 function evaluatePostfix(exp)
 {
     let stack = [];
@@ -288,9 +287,9 @@ function evaluatePostfix(exp)
     {
         let char = exp[i];
         if (!isNaN(Number(char))) // если число
-            {
-                stack.push(Number(char)); // пушим в стек числовое значение взятое из таблицы ютф-8
-            }
+        {
+            stack.push(Number(char)); // пушим в стек числовое значение взятое из таблицы ютф-8
+        }
         // Если символ является оператором, извлекаем два элемента из стека и применяем оператор
         else
         {
@@ -355,7 +354,10 @@ function postfixToInfix(expression)
     expression = spacedExpr;
 
     let i = 0;
-    const nextToken = function()
+    const stack = [];
+    let token;
+    let counter = 1;
+    while (i < expression.length)
     {
         while (i < expression.length && expression[i] == ' ')
         {
@@ -363,15 +365,37 @@ function postfixToInfix(expression)
         }
         if (i == expression.length)
         {
-            return '';
+            break;
         }
-        let token = '';
+        token = '';
         while (i < expression.length && expression[i] != ' ')
         {
             token += expression[i++];
         }
-        return token;
-    };
+
+        if (operators.has(token))
+        {
+            if (stack.length < 2) return 'Error Invalid expression.';
+            stack.push(
+            {
+                op: token,
+                right: stack.pop(),
+                left: stack.pop()
+            });
+        }
+        else
+        {
+            stack.push(token);
+        }
+
+        const stackCopyStr = JSON.stringify(stack);
+        // Запись состояния стека в файл
+        fs.appendFileSync('stack_state_pref_to_inf.json', `State ${counter}: ${stackCopyStr} \n`, err =>
+        {
+            if (err) throw err;
+        });
+        counter++;
+    }
 
     function printExpression(node)
     {
@@ -392,35 +416,6 @@ function postfixToInfix(expression)
         return left + ' ' + node.op + ' ' + right;
     }
 
-    const stack = [];
-    let token;
-    let counter = 1;
-    while ((token = nextToken(expression)) != '') // 7+3/5-1-(8-5)
-    {
-        //if (isOperator(token))
-        if (operators.has(token))
-        {
-            if (stack.length < 2) return 'Error Invalid expression.';
-            stack.push(
-            {
-                op: token,
-                right: stack.pop(),
-                left: stack.pop()
-            });
-        }
-        else
-        {
-            stack.push(token);
-        }
-        const stackCopyStr = JSON.stringify(stack);
-        // Запись состояния стека в файл
-        fs.appendFileSync('stack_state_pref_to_inf.json', `State ${counter}: ${stackCopyStr} \n`, err =>
-        {
-            if (err) throw err;
-            //console.log('Состояние стека было успешно записано в файл!');
-        });
-        counter++;
-    }
     if (stack.length != 1) return 'Error Invalid expression.';
     return printExpression(stack.pop()).replace(/\s/g, '');
 }
@@ -457,8 +452,6 @@ function testCases(num)
         }
     }
 }
-testCases(10);
-
 
 function main()
 {
@@ -542,4 +535,4 @@ function main()
             process.exit(1);
     }
 }
-// main();
+main();
