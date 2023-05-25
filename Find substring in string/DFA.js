@@ -1,60 +1,60 @@
-function make_dfa (str, substr) 
+function makeDFA(str) // Deterministic Finite Automaton
 {
-    let alphabet = new Set(str.split(''));
-    let table = [];
-    let substring = "";
-    for (let i = 0; i <= str.length; i++)
+    let alphabet = new Set(str.split('')); // множество символов в строке
+    let table = []; // таблица смещений
+    let substring = ""; 
+    for (let i = 0; i <= str.length; i++) // пока не конец строки
     {
-        const row = {};
-        symloop: for (let sym of alphabet)
+        const row = {}; // строка таблицы смещений
+        symloop: for (let sym of alphabet) // для каждого символа в строке
         {
-            let sub = substring + sym;
-            const L = sub.length;
-            for (let k = 0; k < L; k++)
+            let sub = substring + sym; // подстрока = подстрока + символ
+            const L = sub.length; // длина подстроки
+            for (let k = 0; k < L; k++) // пока не конец подстроки
             {
-                if (sub === str.slice(0, sub.length))
+                if (sub === str.slice(0, sub.length)) // если подстрока совпала с началом строки2
                 {
-                    row[sym] = sub.length;
-                    continue symloop;
+                    row[sym] = sub.length; // заполняем таблицу смещений
+                    continue symloop; // переходим к следующему символу
                 }
-                sub = sub.slice(1);
+                sub = sub.slice(1); // иначе удаляем первый символ подстроки
             }
             row[sym] = 0;
         }
-        substring += str[i];
-        table.push(row);
+        substring += str[i]; // подстрока = подстрока + символ
+        table.push(row); // добавляем строку в таблицу смещений
     }
     return table;
 }
 
-function search_substring(str, substring, dfa=[]) 
+function searchWithDFA(str, substring, dfa = [])
 {
-    let res = [];
-    if (dfa.length === 0) 
+    let res = []; // массив с индексами вхождений подстроки
+    if (dfa.length === 0) // если таблица смещений не передана
     {
-        dfa = make_dfa(substring);
+        dfa = makeDFA(substring); // создаем таблицу смещений
     }
-    if (str.length < substring.length) 
+    if (str.length < substring.length) // если длина строки меньше длины подстроки
     {
         // Подстрока не найдена
         return [-1];
     }
-    let state = 0;
+    let state = 0; // начальное состояние
     for (let i = 0; i < str.length; i++) 
     {
-        const sym = str[i];
-        if (dfa[state][sym]) 
+        const sym = str[i]; // символ строки
+        if (dfa[state][sym]) // если символ есть в таблице смещений
         {
-            state = dfa[state][sym];
-        } 
-        else 
-        {
-            state = 0;
+            state = dfa[state][sym]; // переходим в следующее состояние
         }
-        if (state === substring.length) {
+        else // иначе
+        {
+            state = 0; // переходим в начальное состояние
+        }
+        if (state === substring.length)
+        {
             // Найдено совпадение
             res.push(i - substring.length + 1);
-            //return i - substring.length + 1;
         }
     }
     if (res.length > 0)
@@ -69,11 +69,13 @@ function search_substring(str, substring, dfa=[])
 const fs = require('fs');
 let inputText = "";
 let inputSubStr = "";
-inputText = fs.readFileSync("C:/Users/samuraj/Documents/VisualStudioCodeProjects/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
+//linux inputText = fs.readFileSync("C:/Users/samuraj/Documents/VisualStudioCodeProjects/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
+//windows
+inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
 inputSubStr = "Андрей Болконский"
 
 console.time("dfa");
-const dfa = make_dfa(inputSubStr);
-const index = search_substring(inputText, inputSubStr, dfa);
+const dfa = makeDFA(inputSubStr);
+const index = searchWithDFA(inputText, inputSubStr, dfa);
 console.timeEnd("dfa");
 console.log(index); // 10
