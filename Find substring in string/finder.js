@@ -268,42 +268,35 @@ function makeDFA(str)
 
 function searchWithDFA(str, substring, dfa = [])
 {
-    let res = [];
+    const res = []; // массив с индексами вхождений подстроки
+    const strLength = str.length;
+    const subLength = substring.length;
+
     if (dfa.length === 0)
     {
         dfa = makeDFA(substring);
     }
-    if (str.length < substring.length)
+
+    if (strLength < subLength)
     {
-        // Подстрока не найдена
         return [-1];
     }
-    let state = 0;
-    for (let i = 0; i < str.length; i++)
+
+    let state = 0; // начальное состояние
+    let i = 0;
+
+    while (i < strLength)
     {
-        const sym = str[i];
-        if (dfa[state][sym])
-        {
-            state = dfa[state][sym];
-            // console.log("state first if " + state);
-        }
-        else
-        {
-            state = 0;
-            // console.log("state second if " + state);
-        }
-        if (state === substring.length)
+        const sym = str[i]; // символ строки
+        state = dfa[state][sym] || 0; // переходим в следующее состояние, если не null or undefined
+        if (state === subLength) // если состояние равно длине подстроки
         {
             // Найдено совпадение
-            res.push(i - substring.length + 1);
+            res.push(i - subLength + 1);
         }
+        i++;
     }
-    if (res.length > 0)
-    {
-        return res;
-    }
-    // Подстрока не найдена
-    return [-1];
+    return res.length > 0 ? res : [-1]; // если есть совпадения, то возвращаем массив с индексами, иначе -1
 }
 
 //inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt";

@@ -29,41 +29,41 @@ function makeDFA(str) // Deterministic Finite Automaton
 
 function searchWithDFA(str, substring, dfa = [])
 {
-    let res = []; // массив с индексами вхождений подстроки
-    if (dfa.length === 0) // если таблица смещений не передана
+    const res = []; // массив с индексами вхождений подстроки
+    const strLength = str.length;
+    const subLength = substring.length;
+
+    if (dfa.length === 0)
     {
-        dfa = makeDFA(substring); // создаем таблицу смещений
+        dfa = makeDFA(substring);
     }
-    if (str.length < substring.length) // если длина строки меньше длины подстроки
+
+    if (strLength < subLength)
     {
-        // Подстрока не найдена
         return [-1];
     }
+
     let state = 0; // начальное состояние
-    for (let i = 0; i < str.length; i++) 
+    let i = 0;
+
+    while (i < strLength)
     {
         const sym = str[i]; // символ строки
-        if (dfa[state][sym]) // если символ есть в таблице смещений
-        {
-            state = dfa[state][sym]; // переходим в следующее состояние
-        }
-        else // иначе
-        {
-            state = 0; // переходим в начальное состояние
-        }
-        if (state === substring.length)
+        let kek = dfa[state][sym];
+        let kek2 = dfa[state];
+        let kek3 = dfa;
+        state = dfa[state][sym] || 0; // переходим в следующее состояние, если не null or undefined
+        if (state === subLength) // если состояние равно длине подстроки
         {
             // Найдено совпадение
-            res.push(i - substring.length + 1);
+            res.push(i - subLength + 1);
         }
+        i++;
     }
-    if (res.length > 0)
-    {
-        return res;
-    }
-    // Подстрока не найдена
-    return [-1];
+    return res.length > 0 ? res : [-1]; // если есть совпадения, то возвращаем массив с индексами, иначе -1
 }
+
+
 
 
 const fs = require('fs');
