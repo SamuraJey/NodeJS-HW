@@ -1,3 +1,4 @@
+const exp = require('constants');
 const fs = require('fs');
 
 function infixToPostfix(expression)
@@ -355,23 +356,29 @@ function postfixToInfix(expression)
 
     let i = 0;
     const stack = [];
-    let token;
+    let token = '';
     let counter = 1;
     while (i < expression.length)
     {
-        while (i < expression.length && expression[i] == ' ')
+        if (expression[i] == ' ')
         {
             i++;
+            continue;
         }
-        if (i == expression.length)
+        else
         {
-            break;
+            token = expression[i];
+            i++;
         }
-        token = '';
-        while (i < expression.length && expression[i] != ' ')
-        {
-            token += expression[i++];
-        }
+        // token = '';
+
+        // while (i < expression.length && expression[i] != ' ')
+        // {
+        //     token = expression[i];
+        //     i++;
+        //     // token += expression[i++];
+        //     //kek = expression[i + 1];
+        // }
 
         if (operators.has(token))
         {
@@ -420,9 +427,10 @@ function postfixToInfix(expression)
     return printExpression(stack.pop()).replace(/\s/g, '');
 }
 
+
 function evaluateInfixExpression(expression)
 {
-    console.log("evaluateInfixExpression " + expression);
+    // console.log("evaluateInfixExpression " + expression);
     expression = expression.replace(/\^/g, "**");
     return eval(expression);
 }
