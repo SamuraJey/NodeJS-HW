@@ -154,40 +154,6 @@ function infixToPostfix(expression)
     return output.join('');
 }
 
-// ЕСЛИ открывающая скобка, а перед ней не оператор, то ошибка
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function evaluatePostfixExpression(expr)
 {
     const stack = [];
@@ -314,31 +280,24 @@ function generateRandomExpression()
     return expression;
 }
 
-// Javascript program to evaluate value of a postfix expression
-// Method to evaluate value of a postfix expression
+
 function evaluatePostfix(exp)
 {
-    //create a stack
     let stack = [];
-
-    // Scan all characters one by one
     for (let i = 0; i < exp.length; i++)
     {
-        let c = exp[i];
-
-        // If the scanned character is an operand (number here),
-        // push it to the stack.
-        if (!isNaN(parseInt(c)))
-            stack.push(c.charCodeAt(0) - '0'.charCodeAt(0));
-
-        // If the scanned character is an operator, pop two
-        // elements from stack apply the operator
+        let char = exp[i];
+        if (!isNaN(Number(char))) // если число
+            {
+                stack.push(Number(char)); // пушим в стек числовое значение взятое из таблицы ютф-8
+            }
+        // Если символ является оператором, извлекаем два элемента из стека и применяем оператор
         else
         {
             let val1 = stack.pop();
             let val2 = stack.pop();
 
-            switch (c)
+            switch (char)
             {
                 case '+':
                     stack.push(val2 + val1);
@@ -384,8 +343,8 @@ function postfixToInfix(expression)
     ]);
 
     let spacedExpr = "";
-    expression = expression.replace(/\s+/g, '');
-    for (let i = 0; i < expression.length; i++)
+    expression = expression.replace(/\s+/g, ''); // Удаление пробелов
+    for (let i = 0; i < expression.length; i++) // Добавление пробелов
     {
         spacedExpr += expression[i];
         if (i < expression.length - 1)
@@ -498,6 +457,7 @@ function testCases(num)
         }
     }
 }
+testCases(10);
 
 
 function main()
@@ -582,4 +542,4 @@ function main()
             process.exit(1);
     }
 }
-main();
+// main();
