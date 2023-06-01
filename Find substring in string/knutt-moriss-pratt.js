@@ -52,7 +52,7 @@ function prefixFunction(substr)
 
 const fs = require('fs');
 
-let inputText = fs.readFileSync("C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt", 'utf8');
+let inputText = fs.readFileSync("Find substring in string/warandpeace.txt", 'utf8');
 
 let inputSubStr = "Андрей Болконский"
 
