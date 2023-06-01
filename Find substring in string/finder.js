@@ -2,7 +2,7 @@ const fs = require('fs');
 let [mode, inputFile, inpSubStrFile, outFile] = process.argv.slice(2);
 // console.log(mode, inputFile, outFile, inpSubStr);
 
-const allowedModes = ['-b', '-r', '--brute-force', '--hash', '--rabin-karp', '-h', '--help', '-bm', '-d'];
+const allowedModes = ['-b', '-r', '--brute-force', '--hash', '--rabin-karp', '-h', '--help', '-bm', '-d', '--dfa', '-k', '-kmp'];
 
 const EM = 16411;
 // const EM = Math.pow(10, 9) + 7;
@@ -299,6 +299,80 @@ function searchWithDFA(str, substring, dfa = [])
     return res.length > 0 ? res : [-1]; // если есть совпадения, то возвращаем массив с индексами, иначе -1
 }
 
+function kmp(string, subString)
+{
+    const strLen = string.length;
+    const subStrLen = subString.length;
+    const lps = computeLPS(subString);
+    const res = [];
+
+    let strIndex = 0; // индекс в тексте
+    let subStrIndex = 0; // индекс в подстроке
+
+    while (strIndex < strLen) // пока не конец текста
+    {
+        if (subString[subStrIndex] === string[strIndex]) // если символы совпадают то двигаемся дальше
+        {
+            strIndex++;
+            subStrIndex++;
+        }
+        if (subStrIndex === subStrLen) // если вся подстрока совпала, то добавляем индекс вхождения в массив
+        {
+            // Найдено вхождение подстроки
+            res.push(strIndex - subStrIndex);
+            subStrIndex = lps[subStrIndex - 1];
+        }
+        else if (strIndex < strLen && subString[subStrIndex] !== string[strIndex]) // если символы не совпадают
+        {
+            if (subStrIndex !== 0) // если не в начале подстроки, то сдвигаемся по lps
+            {
+                subStrIndex = lps[subStrIndex - 1]; // сдвигаемся по lps
+            }
+            else
+            {
+                strIndex++; // иначе двигаемся дальше по тексту
+            }
+        }
+    }
+
+    if (res.length === 0)
+    {
+        //res.push(-1);
+        return [-1];
+    }
+    return res;
+}
+
+function computeLPS(pattern)
+{
+    const m = pattern.length;
+    const lps = new Array(m).fill(0);
+
+    let len = 0;
+    let i = 1;
+
+    while (i < m)
+    {
+        if (pattern[i] === pattern[len])
+        {
+            len++;
+            lps[i] = len;
+            i++;
+        } else
+        {
+            if (len !== 0)
+            {
+                len = lps[len - 1];
+            } else
+            {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+    return lps;
+}
+
 //inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt";
 
 //funtion to print substrings with context
@@ -554,6 +628,51 @@ switch (mode)
                 break;
             }
             fs.appendFileSync(outFile, dfaRes[i] + "\n", err =>
+            {
+                if (err)
+                {
+                    throw err;
+                }
+            });
+        }
+        break;
+    
+    case '-kmp':
+        start = performance.now();
+        let kmpRes = kmp(inputText, inputSubStr);
+        end = performance.now();
+        time = (end - start).toFixed(3);
+        count = (kmpRes).length;
+
+        if (kmpRes[0] === -1)
+        {
+            count = 0;
+        }
+        const check4 = bruteForce(inputText, inputSubStr);
+        if (check4[0].length !== kmpRes.length)
+        {
+            console.log("Количество вхождений не совпадает");
+        }
+        else
+        {
+            console.log("Количество вхождений совпадает");
+        }
+
+        fs.appendFileSync(outFile, `Результат поиска KMP за ${time} ms c ${count} вхождениями:\n`, err =>
+        {
+            if (err)
+            {
+                throw err;
+            }
+        });
+
+        for (let i = 0; i < kmpRes.length; i++)
+        {
+            if (i === 10)
+            {
+                break;
+            }
+            fs.appendFileSync(outFile, kmpRes[i] + "\n", err =>
             {
                 if (err)
                 {
