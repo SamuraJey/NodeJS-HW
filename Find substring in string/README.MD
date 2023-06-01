@@ -32,7 +32,7 @@ node finder.js -b inpFile.txt inpSubstr.txt outputFile.txt
 
 Пример:
 ```
-BruteForce за 11.100 ms c 4 вхождениями:
+Результат поиска bruteForce за 11.745 ms c 4 вхождениями:
 28727
 290030
 586189
