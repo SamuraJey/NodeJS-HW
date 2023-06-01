@@ -41,7 +41,7 @@ function bruteForce(str, substr)
     return [result, counter];
 }
 
-function searchSubstring(string, substring, M)
+function searchSubstringWithHash(string, substring, M)
 {
     //const M = 11047; // простое число для взятия остатка по модулю //11383 fine //11071 better // 11047 smallest working with warandpeace.txt
     //const M = Math.pow(10, 9) + 7;
@@ -458,7 +458,7 @@ switch (mode)
 
     case "--hash":
         start = performance.now();
-        let hashRes = searchSubstring(inputText, inputSubStr, EM); //4099 4327 101
+        let hashRes = searchSubstringWithHash(inputText, inputSubStr, EM); //4099 4327 101
         end = performance.now();
         time = (end - start).toFixed(3);
         count = (hashRes[0]).length;
