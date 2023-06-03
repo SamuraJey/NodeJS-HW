@@ -34,9 +34,7 @@ function searchSubstringWithHash(string, substring, M)
         }
         const leftChar = string.charCodeAt(i);
         const rightChar = string.charCodeAt(i + subStrLen);
-        //currentHash = (currentHash - leftChar + rightChar + M) % M; // DONE!!! TODO: убрать отрицательные значения
         currentHash = ((currentHash - leftChar + rightChar) % M + M) % M;
-        //console.log(currentHash);
         currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
     if (result.length === 0) // если не нашли вхождений подстроки, то возвращаем -1

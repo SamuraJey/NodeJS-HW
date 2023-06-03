@@ -39,7 +39,7 @@ function compressRLE(input)
                 if (chunkLength > 0)
                 {
                     compressed += `#${String.fromCharCode(chunkLength)}#`;
-                    
+
                     isReshetka = false;
                 }
                 isReshetka = false;
@@ -74,7 +74,6 @@ function compressRLE(input)
 function decompressRLE(input)
 {
     let decompressed = '';
-    let intStr = '';
 
     for (let i = 0; i < input.length; i++)
     {
@@ -83,7 +82,7 @@ function decompressRLE(input)
         if (currentChar === '#' && i + 1 < input.length)
         {
             let idx = i + 1;
-            
+
 
             const howMany = input.charCodeAt(idx);
             const char = input[idx + 1];
@@ -106,7 +105,6 @@ function decompressRLE(input)
         }
     }
 
-    // console.log(decompressed);
     return decompressed;
 }
 
@@ -150,7 +148,7 @@ else if (mode.toLowerCase() === '-t')
         console.error("Обнаружена ошибка, файл не найден")
         process.exit(1); // Если файл не существует, выводим сообщение об ошибке и завершаем программу
     }
-    
+
     const inputText1 = fs.readFileSync(inputFilename, 'utf8');
     const inputText2 = fs.readFileSync(outputFilename, 'utf8');
     if (inputText1 === inputText2)
@@ -169,20 +167,6 @@ else if (mode.toLowerCase() === '-t')
 // const input = 'AAAA##B#';
 // let compressedOutput = compressRLE(input);
 // compressedOutput = "#10A#2B#2#"
-// console.log(compressedOutput); // Выводит: #4A#2#B#1# #4A#2#B#1# 
+// console.log(compressedOutput); // Выводит: #4A#2#B#1# #4A#2#B#1#
 // decompressRLE(compressedOutput);
 
-/*
-
-          let encodedSequence = `#${String.fromCharCode(sequenceLength - 4)}${inputText[i]}`;
-          if (sequenceLength > 65534) // Если длина последовательности больше 65534 символов, разбиваем ее на блоки
-          {
-              let remainingLength = sequenceLength - 65532;
-              while (remainingLength > 0)
-              {
-              let chunkLength = Math.min(remainingLength, 65532);
-              encodedSequence += `#${String.fromCharCode(65532)}${inputText[i]}`;
-              remainingLength -= chunkLength;
-              }
-          }
-          */

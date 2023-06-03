@@ -8,19 +8,19 @@ const [mode, inputText1, inputText2] = process.argv.slice(2);
 const syndromeErrorPosMap = // таблица синдромов для 7-битного кода
 {
     '000': 0,
-    '101' : 1,
-    '111' : 2,
-    '110' : 3,
-    '011' : 4,
-    '100' : 5,
-    '010' : 6,
-    '001' : 7,
+    '101': 1,
+    '111': 2,
+    '110': 3,
+    '011': 4,
+    '100': 5,
+    '010': 6,
+    '001': 7,
 };
 
-const validModes = ["-e", "--encode", "-c", "--correct", "-tc", "--test-correct", "-te", "--test-encode", "--help", "-h", ]; // допустимые режимы работы программы
+const validModes = ["-e", "--encode", "-c", "--correct", "-tc", "--test-correct", "-te", "--test-encode", "--help", "-h",]; // допустимые режимы работы программы
 
 function encodeHamming(msg) // кодирование сообщения по алгоритму Хэмминга (8,4)
-{   
+{
     // формат сообщения d1, d2, d3, d4, p1, p2, p3, p4
     const [y1, y2, y3, y4] = msg.toString(); // берём 4 бита данных
     const y5 = (y1 ^ y2 ^ y3).toString(); // вычисляем первый бит чётности по формуле p1 = d1 + d2 + d3
@@ -56,17 +56,17 @@ function correctHamming(message)
     let res_stroka = "";
 
     let s0 = (parseInt(y1) + parseInt(y2) + parseInt(y3) + parseInt(y4) + parseInt(y5) + parseInt(y6) + parseInt(y7) + parseInt(y8)) % 2; // вычисляем четвёртый бит чётности по формуле p4 = d1 + d2 + d3 + d4 + p1 + p2 + p3
-    
+
     if (s0 == "0" && findSyndrome(message) == "000") // если синдром равен 000 и четвёртый бит чётности равен 0, то код корректен
     {
-        result = 
-            {
-                errorBitNum: -1,
-                notCorrectedCode: message,
-                correctedCode: message,
-                decoded: message.slice(0, 4)
-            };
-            return result;
+        result =
+        {
+            errorBitNum: -1,
+            notCorrectedCode: message,
+            correctedCode: message,
+            decoded: message.slice(0, 4)
+        };
+        return result;
     }
     else if (s0 == "1") // если четвёртый бит чётности равен 1, то код, возможно, некорректен
     {
@@ -74,7 +74,7 @@ function correctHamming(message)
         if (errorPos == -1) // синдром = 000, то errorPos = -1, значит код корректен
         {
             res_stroka = message.slice(0, 7) + (message[7] ^ 1).toString() + message.slice(7 + 1);
-            result = 
+            result =
             {
                 errorBitNum: 8,
                 notCorrectedCode: message,
@@ -97,7 +97,7 @@ function correctHamming(message)
         if (s00 != message[7]) // если вычисленный четвёртый бит чётности не равен четвёртому биту чётности в "исправленной строке", то код имеет ошибку в p4
         {
             res_stroka = message.slice(0, 7) + (message[7] ^ 1).toString() + message.slice(7 + 1);
-            
+
             result =
             {
                 errorBitNum: 8,
@@ -106,7 +106,7 @@ function correctHamming(message)
                 decoded: res_stroka.slice(0, 4)
             };
             //console.log(result);
-           return result;
+            return result;
         }
         return result;
     }
@@ -132,21 +132,22 @@ function corruptRandomBit(str)
 {
     // Преобразуем строку в массив символов
     let chars = str.split("");
-    
+
     // Генерируем случайный индекс в диапазоне от 0 до (длины строки - 1)
     let randomIndex = Math.floor(Math.random() * chars.length);
-    
+
     // Меняем символ на противоположный, используя тернарный оператор
     chars[randomIndex] = chars[randomIndex] === "0" ? "1" : "0";
-    
+
     // Преобразуем массив символов обратно в строку и возвращаем ее
     return chars.join("");
 }
-  
+
 
 let arr = ["00000000", "10001011", "01001110", "11000101", "00101101", "10100110", "01100011", "11101000", "00010111", "10011100", "01011001", "11010010", "00111010", "10110001", "01110100", "11111111"];
 let arr2 = ["0000", "1000", "0100", "1100", "0010", "1010", "0110", "1110", "0001", "1001", "0101", "1101", "0011", "1011", "0111", "1111"];
-function testCorrection2()
+
+function testCorrection2Bit()
 {
     console.log("start testCorrection2");
     console.log();
@@ -161,21 +162,14 @@ function testCorrection2()
         console.log(`error in bit ${check.errorBitNum}`);
         console.log(`corrected code = ${check.correctedCode}`);
         console.log();
-        /*
-        //console.log(correctSmh(arr[i]));
-        //console.log();
-        console.log(`original arr[${i}] = ${arr[i]}`)
-        //console.log(correctSmh(corruptRandomBit(arr[i])));
-        console.log(correctHamming(corruptRandomBit(corruptRandomBit(arr[i]))));
-        console.log();
-        */
-    } 
+    }
     console.log();
     console.log("end testCorrection2");
 }
-function testCorrection1()
+
+function testCorrection1Bit()
 {
-    console.log("start testCorrection1");
+    console.log("start testCorrection1Bit");
     for (let i = 0; i < 16; i++)
     {
         let check = correctHamming(corruptRandomBit(arr[i]))
@@ -184,11 +178,10 @@ function testCorrection1()
         console.log(`error in bit ${check.errorBitNum}`);
         console.log(`corrected code = ${check.correctedCode}`);
         console.log(check.correctedCode == arr[i] ? "OK" : "ERROR");
-        //console.log(correctHamming(corruptRandomBit(arr[i])));
         console.log();
-    } 
+    }
     console.log();
-    console.log("end testCorrection1");
+    console.log("end testCorrection1Bit");
 }
 //testCorrection();
 
@@ -220,12 +213,12 @@ if (mode.toLowerCase() == "-tc" || mode.toLowerCase() == "--test-correction")
     if (inputText1 == "1")
     {
         console.log("testCorrection with 1 bit error started");
-        testCorrection1();
+        testCorrection1Bit();
     }
     else if (inputText1 == "2")
     {
         console.log("testCorrection with 2 bit error started");
-        testCorrection2();
+        testCorrection2Bit();
     }
     return;
 }
@@ -256,7 +249,7 @@ if (mode.toLowerCase() === "-h" || mode.toLowerCase() === "--help")
 
 if (mode.toLowerCase() === "-e" || mode.toLowerCase() === "--encode")
 {
-    
+
     if (inputText1.length != 4)
     {
         errorMessage = `\x1b[31mWrong lenght given. Recived ${inputText1.length}, should be 4\x1b[0m`;
@@ -294,7 +287,7 @@ if (mode.toLowerCase() === "-c" || mode.toLowerCase() === "--correct")
         console.log(`No errors found in: \x1b[32m${inputText1}\x1b[0m`);
         return;
     }
-    else if(correctHamming(inputText1).errorBitNum == null)
+    else if (correctHamming(inputText1).errorBitNum == null)
     {
         console.log(`\x1b[31mDouble error, can't correct\x1b[0m`);
         return;

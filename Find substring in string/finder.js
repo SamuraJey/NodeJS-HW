@@ -2,7 +2,7 @@ const fs = require('fs');
 let [mode, inputFile, inpSubStrFile, outFile] = process.argv.slice(2);
 // console.log(mode, inputFile, outFile, inpSubStr);
 
-const allowedModes = ['-b', '-r', '--brute-force', '--hash', '--rabin-karp', '-h', '--help', '-bm', '-d', '--dfa', '-k', '-kmp'];
+const allowedModes = ['-b', '-r', '--brute-force', '--hash', '--rabin-karp', '-h', '--help', '-bm', '--boyerMoore', '-d', '--dfa', '-k', '-kmp'];
 
 const EM = 16411;
 // const EM = Math.pow(10, 9) + 7;
@@ -77,9 +77,7 @@ function searchSubstringWithHash(string, substring, M)
         }
         const leftChar = string.charCodeAt(i);
         const rightChar = string.charCodeAt(i + subStrLen);
-        //currentHash = (currentHash - leftChar + rightChar + M) % M; // DONE!!! TODO: убрать отрицательные значения
         currentHash = ((currentHash - leftChar + rightChar) % M + M) % M;
-        //console.log(currentHash);
         currentSubstring = string.slice(i + 1, i + subStrLen + 1);
     }
     if (result.length === 0) // если не нашли вхождений подстроки, то возвращаем -1
@@ -94,9 +92,6 @@ function searchSubstringWithHash(string, substring, M)
 function rabinKarp(string, substring, powersOfTwo, M = 9973)
 {
     //const M = 1000003; // простое число для взятия остатка по модулю
-    //const M = 9973;
-    //const M = Math.pow(10, 9) + 7;
-
     const subStrLen = substring.length; // длина подстроки
     const strLen = string.length; // длина строки
 
@@ -179,11 +174,6 @@ class BoyerMoore
             );
         }
 
-        // if (res.length === 0)
-        // {
-        //     res.push(-1);
-        //     return res;
-        // }
         return res.length > 0 ? res : [-1];
     }
 
@@ -237,31 +227,31 @@ class BoyerMoore
     }
 }
 
-function makeDFA(str)
+function makeDFA(str) // Deterministic Finite Automaton
 {
-    let alphabet = new Set(str.split(''));
-    let table = [];
+    let alphabet = new Set(str.split('')); // множество символов в строке
+    let table = []; // таблица смещений
     let substring = "";
-    for (let i = 0; i <= str.length; i++)
+    for (let i = 0; i <= str.length; i++) // пока не конец строки
     {
-        const row = {};
-        symloop: for (let sym of alphabet)
+        const row = {}; // строка таблицы смещений
+        symloop: for (let sym of alphabet) // для каждого символа в строке
         {
-            let sub = substring + sym;
-            const L = sub.length;
-            for (let k = 0; k < L; k++)
+            let sub = substring + sym; // подстрока = подстрока + символ
+            const L = sub.length; // длина подстроки
+            for (let k = 0; k < L; k++) // пока не конец подстроки
             {
-                if (sub === str.slice(0, sub.length))
+                if (sub === str.slice(0, sub.length)) // если подстрока совпала с началом строки2
                 {
-                    row[sym] = sub.length;
-                    continue symloop;
+                    row[sym] = sub.length; // заполняем таблицу смещений
+                    continue symloop; // переходим к следующему символу
                 }
-                sub = sub.slice(1);
+                sub = sub.slice(1); // иначе удаляем первый символ подстроки
             }
             row[sym] = 0;
         }
-        substring += str[i];
-        table.push(row);
+        substring += str[i]; // подстрока = подстрока + символ
+        table.push(row); // добавляем строку в таблицу смещений
     }
     return table;
 }
@@ -373,8 +363,6 @@ function computeLPS(pattern)
     return lps;
 }
 
-//inputFile = "C:/Users/SamuraJ/Documents/GitHub/NodeJS-HW/Find substring in string/warandpeace.txt";
-
 //funtion to print substrings with context
 function printSubstringWithContext(inputText, result, substr, context = 10)
 {
@@ -388,7 +376,8 @@ function printSubstringWithContext(inputText, result, substr, context = 10)
     }
 }
 
-if (!allowedModes.includes(mode.toLowerCase())) // Проверка на то, что введенный режим является одним из допустимых. Если нет, то возвращает true и выполняется код внутри if
+// Проверка на то, что введенный режим является одним из допустимых. Если нет, то возвращает true и выполняется код внутри if
+if (!allowedModes.includes(mode.toLowerCase()))
 {
     const errorMessage = `\x1b[31mInvalid mode: ${mode.toLowerCase()}\nUse -h or --help for instructions\x1b[0m`;
     console.error(errorMessage);
@@ -591,6 +580,7 @@ switch (mode)
             });
         }
         break;
+
     case '-d':
         start = performance.now();
         let dfaRes = searchWithDFA(inputText, inputSubStr);
@@ -636,7 +626,7 @@ switch (mode)
             });
         }
         break;
-    
+
     case '-kmp':
         start = performance.now();
         let kmpRes = kmp(inputText, inputSubStr);

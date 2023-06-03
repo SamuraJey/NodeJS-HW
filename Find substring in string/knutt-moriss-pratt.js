@@ -1,26 +1,39 @@
-function findSubstring(str, substr)
+function kmp(string, subString)
 {
-    let res = [];
-    let strLen = str.length;
-    let subStrLen = substr.length;
-    let prefix = prefixFunction(substr);
-    let j = 0;
-    for (let i = 0; i < strLen; i++)
+    const strLen = string.length;
+    const subStrLen = subString.length;
+    const lps = computeLPS(subString);
+    const res = [];
+
+    let strIndex = 0; // индекс в тексте
+    let subStrIndex = 0; // индекс в подстроке
+
+    while (strIndex < strLen) // пока не конец текста
     {
-        while (j > 0 && str[i] !== substr[j])
+        if (subString[subStrIndex] === string[strIndex]) // если символы совпадают то двигаемся дальше
         {
-            j = prefix[j - 1];
+            strIndex++;
+            subStrIndex++;
         }
-        if (str[i] === substr[j])
+        if (subStrIndex === subStrLen) // если вся подстрока совпала, то добавляем индекс вхождения в массив
         {
-            j++;
+            // Найдено вхождение подстроки
+            res.push(strIndex - subStrIndex);
+            subStrIndex = lps[subStrIndex - 1];
         }
-        if (j === subStrLen)
+        else if (strIndex < strLen && subString[subStrIndex] !== string[strIndex]) // если символы не совпадают
         {
-            res.push(i - subStrLen + 1);
-            j = prefix[j - 1];
+            if (subStrIndex !== 0) // если не в начале подстроки, то сдвигаемся по lps
+            {
+                subStrIndex = lps[subStrIndex - 1]; // сдвигаемся по lps
+            }
+            else
+            {
+                strIndex++; // иначе двигаемся дальше по тексту
+            }
         }
     }
+
     if (res.length === 0)
     {
         //res.push(-1);
@@ -29,24 +42,34 @@ function findSubstring(str, substr)
     return res;
 }
 
-function prefixFunction(substr)
+function computeLPS(pattern)
 {
-    const subStrLen = substr.length;
-    let prefix = new Array(subStrLen).fill(0);
-    let j = 0;
-    for (let i = 1; i < subStrLen; i++) // i = 1 потому что первый символ всегда 0
+    const m = pattern.length;
+    const lps = new Array(m).fill(0);
+
+    let len = 0;
+    let i = 1;
+
+    while (i < m)
     {
-        while (j > 0 && substr[i] !== substr[j]) // пока не совпадают символы
+        if (pattern[i] === pattern[len])
         {
-            j = prefix[j - 1]; // сдвигаемся по таблице префиксов
-        }
-        if (substr[i] === substr[j]) // если символы совпали
+            len++;
+            lps[i] = len;
+            i++;
+        } else
         {
-            j++; // то увеличиваем длину префикса
+            if (len !== 0)
+            {
+                len = lps[len - 1];
+            } else
+            {
+                lps[i] = 0;
+                i++;
+            }
         }
-        prefix[i] = j; // записываем длину префикса в таблицу
     }
-    return prefix;
+    return lps;
 }
 
 
@@ -59,6 +82,6 @@ let inputSubStr = "Андрей Болконский"
 let str = "hello world";
 let substr = "l";
 console.time("1")
-let res = findSubstring(inputText, inputSubStr);
+let res = kmp(inputText, inputSubStr);
 console.timeEnd("1")
 console.log(res); // [2, 3, 9]

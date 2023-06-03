@@ -49,9 +49,6 @@ function searchWithDFA(str, substring, dfa = [])
     while (i < strLength)
     {
         const sym = str[i]; // символ строки
-        let kek = dfa[state][sym];
-        let kek2 = dfa[state];
-        let kek3 = dfa;
         state = dfa[state][sym] || 0; // переходим в следующее состояние, если не null or undefined
         if (state === subLength) // если состояние равно длине подстроки
         {

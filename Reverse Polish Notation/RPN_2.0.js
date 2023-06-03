@@ -112,7 +112,7 @@ function infixToPostfix(expression)
             // ЕСЛИ открывающая скобка, а перед ней не оператор, то ошибка
             else if (currentToken === '(' && !(operators.has(lastToken)) && lastToken != " " && currentToken != " " && lastToken != '(' && lastToken != ')' && lastToken != '')
             {
-                throw new Error(`Error Invalid expression [ ${expression} ]: HUY cannot have two operands in a row`);
+                throw new Error(`Error Invalid expression [ ${expression} ]: cannot have two operands in a row`);
             }
             else if (!(isNaN(lastToken)) && !(isNaN(currentToken)) && lastToken != " " && currentToken != " ")
             {

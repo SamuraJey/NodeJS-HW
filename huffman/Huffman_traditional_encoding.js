@@ -20,7 +20,7 @@ if (mode.toLowerCase() == "help")
     process.exit(0);
 }
 
-var bolt = "╬";
+let bolt = "╬";
 
 class HuffmanNode //Класс для узлов дерева Хаффмана
 {
@@ -145,7 +145,7 @@ function getHuffmanCodes(node, prefix = "")
           {
             if (codeTable[char] === currentCode) // Если есть, то добавляем символ к результату
             {
-                if (codeTable[char] === codeTable["╬"]) // Если символ болта конца файла, то выходим из цикла
+                if (codeTable[char] === codeTable[bolt]) // Если символ болта конца файла, то выходим из цикла
                 {
                     break;
                 }
@@ -161,7 +161,7 @@ function getHuffmanCodes(node, prefix = "")
 if (mode == "-e") 
 {
     let textInput = fs.readFileSync(fileInput, "utf-8"); //Читаем файл
-    textInput += "╬"; //Добавляем символ болта конца файла
+    textInput += bolt; //Добавляем символ болта конца файла
 
     const freq = findFrequencies(textInput); //Считаем частоту символов
     const tree = buildHuffmanTree(freq); //Строим дерево Хаффмана
