@@ -155,39 +155,39 @@ function infixToPostfix(expression)
     return output.join('');
 }
 
-function evaluatePostfixExpression(expr)
-{
-    const stack = [];
-    const operators = {
-        '+': (a, b) => a + b,
-        '-': (a, b) => a - b,
-        '*': (a, b) => a * b,
-        '/': (a, b) => a / b,
-        '^': (a, b) => Math.pow(a, b)
-    };
+// function evaluatePostfixExpression(expr)
+// {
+//     const stack = [];
+//     const operators = {
+//         '+': (a, b) => a + b,
+//         '-': (a, b) => a - b,
+//         '*': (a, b) => a * b,
+//         '/': (a, b) => a / b,
+//         '^': (a, b) => Math.pow(a, b)
+//     };
 
-    const tokens = expr.split('');
+//     const tokens = expr.split('');
 
-    for (let token of tokens)
-    {
-        if (!isNaN(token))
-        {
-            stack.push(Number.parseFloat(token));
-        }
-        else if (token in operators)
-        {
-            const b = stack.pop();
-            const a = stack.pop();
-            const result = operators[token](a, b);
-            stack.push(result);
-        }
-        else
-        {
-            throw new Error(`Error Invalid character: ${token}`);
-        }
-    }
-    return stack[0];
-}
+//     for (let token of tokens)
+//     {
+//         if (!isNaN(token))
+//         {
+//             stack.push(Number.parseFloat(token));
+//         }
+//         else if (token in operators)
+//         {
+//             const b = stack.pop();
+//             const a = stack.pop();
+//             const result = operators[token](a, b);
+//             stack.push(result);
+//         }
+//         else
+//         {
+//             throw new Error(`Error Invalid character: ${token}`);
+//         }
+//     }
+//     return stack[0];
+// }
 
 function generateRandomExpression()
 {
@@ -370,15 +370,6 @@ function postfixToInfix(expression)
             token = expression[i];
             i++;
         }
-        // token = '';
-
-        // while (i < expression.length && expression[i] != ' ')
-        // {
-        //     token = expression[i];
-        //     i++;
-        //     // token += expression[i++];
-        //     //kek = expression[i + 1];
-        // }
 
         if (operators.has(token))
         {
@@ -521,7 +512,7 @@ function main()
                     const infixExpression = postfixToInfix(inputExpr);
                     const infixResult = evaluateInfixExpression(infixExpression);
                     const postfixExpression = infixToPostfix(infixExpression);
-                    const postfixResult = evaluatePostfixExpression(postfixExpression);
+                    const postfixResult = evaluatePostfix(postfixExpression);
                     console.log(`Infix expression: ${infixExpression}`);
                     console.log(`Infix result: ${infixResult}`);
                     console.log(`Restored Postfix expression: ${postfixExpression}`);
