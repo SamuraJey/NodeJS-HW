@@ -10,3 +10,4 @@
 - [Виртуальная машина](https://github.com/SamuraJey/NodeJS-HW/tree/main/Virtual%20Machine)
 - [Код Хаффмана](https://github.com/SamuraJey/NodeJS-HW/tree/main/huffman)
 - [Энтропия Шеннона](https://github.com/SamuraJey/NodeJS-HW/tree/main/shennon)
+- [Самописный float](https://github.com/Skiftare/NodeJS-HW/tree/main/Float)
