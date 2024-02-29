@@ -83,13 +83,13 @@ function decompressRLE(input)
         {
             let idx = i + 1;
 
-            const howMany = input.charCodeAt(idx); // Decrement the value of howMany by 1
+            const howMany = input.charCodeAt(idx);
             const char = input[idx + 1];
 
             if (char !== undefined)
             {
                 decompressed += char.repeat(howMany);
-                i = idx + 1; // Increment i by 1 to skip the repeated character
+                i = idx + 1; // Первый символ мы уже обработали, поэтому увеличиваем индекс на 1
             }
             else
             {
@@ -105,7 +105,7 @@ function decompressRLE(input)
     return decompressed;
 }
 
-if (mode.toLowerCase() === '-e')
+if (mode.toLowerCase() === '-e' || mode.toLowerCase() === '--encode')
 {
     if (!((fs.existsSync(inputFilename))))
     {
@@ -120,7 +120,7 @@ if (mode.toLowerCase() === '-e')
     console.log(`Файл сжат. Коэфицент сжатия: ${inputFileSize / outputFileSize}`);
     return;
 }
-else if (mode.toLowerCase() === '-d')
+else if (mode.toLowerCase() === '-d' || mode.toLowerCase() === '--decode')
 {
     if (!((fs.existsSync(inputFilename))))
     {
