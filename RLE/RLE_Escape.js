@@ -54,11 +54,11 @@ function compressRLE(input)
                         while (remainingLength > 0)
                         {
                             let chunkLength = Math.min(remainingLength, 32000);
-                            compressed += `#${String.fromCharCode(32000)}${inputText[i]}`;
+                            compressed += `#${String.fromCharCode(32000)}${input[i]}`;
                             remainingLength -= chunkLength;
                         }
                     }
-                    compressed += `#${String.fromCharCode(count)}${inputText[i]}`;
+                    compressed += `#${String.fromCharCode(count)}${input[i]}`;
                 }
                 else
                 {
@@ -83,21 +83,18 @@ function decompressRLE(input)
         {
             let idx = i + 1;
 
-
-            const howMany = input.charCodeAt(idx);
+            const howMany = input.charCodeAt(idx); // Decrement the value of howMany by 1
             const char = input[idx + 1];
 
             if (char !== undefined)
             {
                 decompressed += char.repeat(howMany);
+                i = idx + 1; // Increment i by 1 to skip the repeated character
             }
             else
             {
                 decompressed += '#';
             }
-
-            i = idx;
-            intStr = '';
         }
         else
         {
