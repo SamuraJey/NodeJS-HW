@@ -36,9 +36,9 @@ function compressRLE(input)
                     }
                 }
                 //console.log(remainingLength);
-                if (chunkLength > 0)
+                if (count > 0)
                 {
-                    compressed += `#${String.fromCharCode(chunkLength)}#`;
+                    compressed += `#${String.fromCharCode(count)}#`;
 
                     isReshetka = false;
                 }
